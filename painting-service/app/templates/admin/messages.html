@@ -1,0 +1,484 @@
+<!-- filepath: c:\Users\surface\KHALED_WEBSITE\painting-service\app\templates\admin\messages.html -->
+{% extends "base.html" %}
+
+{% block title %}Messages Management - Color&Craft Admin{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <div class="admin-header">
+        <div class="admin-header-content">
+            <div class="admin-title">
+                <h1><i class="fas fa-envelope"></i> Messages Management</h1>
+                <p>Manage customer inquiries and service requests</p>
+            </div>
+            <div class="admin-actions">
+                <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+                <a href="{{ url_for('admin.logout') }}" class="btn btn-danger">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Message Statistics -->
+    <div class="message-stats">
+        <div class="stat-item">
+            <span class="stat-number">{{ total_messages or messages|length }}</span>
+            <span class="stat-label">Total Messages</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-number">{{ unread_count or 0 }}</span>
+            <span class="stat-label">Unread</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-number">{{ pending_count or 0 }}</span>
+            <span class="stat-label">Pending</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-number">{{ completed_count or 0 }}</span>
+            <span class="stat-label">Completed</span>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filter-section">
+        <div class="filter-tabs">
+            <button class="filter-tab active" data-filter="all">
+                <i class="fas fa-list"></i> All Messages
+            </button>
+            <button class="filter-tab" data-filter="unread">
+                <i class="fas fa-envelope"></i> Unread ({{ unread_count }})
+            </button>
+            <button class="filter-tab" data-filter="pending">
+                <i class="fas fa-clock"></i> Pending
+            </button>
+            <button class="filter-tab" data-filter="in-progress">
+                <i class="fas fa-spinner"></i> In Progress
+            </button>
+            <button class="filter-tab" data-filter="completed">
+                <i class="fas fa-check-circle"></i> Completed
+            </button>
+        </div>
+        
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" id="messageSearch" placeholder="Search messages...">
+        </div>
+    </div>
+
+    <!-- Messages List -->
+    <div class="messages-section">
+        {% if messages %}
+            <div class="messages-grid">
+                {% for message in messages %}
+                <div class="message-card {{ 'unread' if not message.is_read else '' }}" 
+                     data-status="{{ message.status }}"
+                     data-search="{{ (message.name + ' ' + message.email + ' ' + message.message)|lower }}">
+                    
+                    <div class="message-header">
+                        <div class="message-sender">
+                            <div class="sender-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="sender-info">
+                                <h3>{{ message.name }}</h3>
+                                <p>{{ message.email }}</p>
+                                {% if message.phone %}
+                                <p class="phone">{{ message.phone }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="message-meta">
+                            <span class="message-date">
+                                <i class="far fa-calendar"></i>
+                                {{ message.created_at.strftime('%b %d, %Y') }}
+                            </span>
+                            <span class="status-badge status-{{ message.status }}">
+                                {{ message.status|title }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="message-content">
+                        {% if message.service_type %}
+                        <div class="service-type">
+                            <i class="fas fa-paint-brush"></i>
+                            {{ message.service_type }}
+                        </div>
+                        {% endif %}
+                        
+                        <div class="message-text">
+                            {{ message.message[:150] }}{% if message.message|length > 150 %}...{% endif %}
+                        </div>
+                    </div>
+
+                    <div class="message-actions">
+                        <a href="{{ url_for('admin.view_message', message_id=message.id) }}" 
+                           class="action-btn primary">
+                            <i class="fas fa-eye"></i> View Details
+                        </a>
+                        
+                        <a href="mailto:{{ message.email }}" class="action-btn secondary">
+                            <i class="fas fa-reply"></i> Reply
+                        </a>
+                        
+                        {% if message.phone %}
+                        <a href="tel:{{ message.phone }}" class="action-btn secondary">
+                            <i class="fas fa-phone"></i> Call
+                        </a>
+                        {% endif %}
+                        
+                        <form method="POST" action="{{ url_for('admin.delete_message', message_id=message.id) }}" 
+                              class="delete-form" onsubmit="return confirm('Delete this message?');">
+                            <button type="submit" class="action-btn danger">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <i class="fas fa-inbox"></i>
+                <h3>No Messages Yet</h3>
+                <p>When customers contact you, their messages will appear here</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.message-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-item {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    border: 1px solid var(--gray-200);
+}
+
+.stat-number {
+    display: block;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    color: var(--light-text);
+    font-weight: 500;
+}
+
+.filter-section {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 2rem;
+}
+
+.filter-tabs {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.filter-tab {
+    padding: 0.75rem 1.5rem;
+    border: 2px solid var(--gray-200);
+    background: white;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.filter-tab:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.filter-tab.active {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+}
+
+.search-box {
+    position: relative;
+    min-width: 250px;
+}
+
+.search-box i {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--light-text);
+}
+
+.search-box input {
+    width: 100%;
+    padding: 0.75rem 1rem 0.75rem 3rem;
+    border: 2px solid var(--gray-200);
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+.search-box input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.messages-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    gap: 2rem;
+}
+
+.message-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    border: 1px solid var(--gray-200);
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.message-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+}
+
+.message-card.unread {
+    border-left: 4px solid var(--primary-color);
+    background: linear-gradient(to right, rgba(37, 99, 235, 0.05), white);
+}
+
+.message-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--gray-100);
+}
+
+.message-sender {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.sender-avatar {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.2rem;
+}
+
+.sender-info h3 {
+    font-size: 1.1rem;
+    color: var(--dark-text);
+    margin-bottom: 0.25rem;
+}
+
+.sender-info p {
+    color: var(--light-text);
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+.sender-info .phone {
+    color: var(--primary-color);
+    font-weight: 500;
+}
+
+.message-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.message-date {
+    color: var(--light-text);
+    font-size: 0.9rem;
+}
+
+.status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-pending { background: #fef3c7; color: #92400e; }
+.status-in-progress { background: #dbeafe; color: #1e40af; }
+.status-completed { background: #d1fae5; color: #065f46; }
+.status-cancelled { background: #fee2e2; color: #991b1b; }
+
+.message-content {
+    padding: 1.5rem;
+}
+
+.service-type {
+    background: var(--gray-100);
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    color: var(--primary-color);
+    font-weight: 600;
+    margin-bottom: 1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.message-text {
+    line-height: 1.6;
+    color: var(--dark-text);
+}
+
+.message-actions {
+    padding: 1rem 1.5rem;
+    background: var(--gray-50);
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.action-btn {
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.action-btn.primary {
+    background: var(--primary-color);
+    color: white;
+}
+
+.action-btn.primary:hover {
+    background: var(--primary-light);
+}
+
+.action-btn.secondary {
+    background: var(--gray-600);
+    color: white;
+}
+
+.action-btn.secondary:hover {
+    background: var(--gray-700);
+}
+
+.action-btn.danger {
+    background: var(--danger-color);
+    color: white;
+}
+
+.action-btn.danger:hover {
+    background: #dc2626;
+}
+
+.delete-form {
+    display: inline;
+}
+
+@media (max-width: 768px) {
+    .filter-section {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .search-box {
+        min-width: auto;
+    }
+    
+    .messages-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .message-actions {
+        justify-content: center;
+    }
+}
+</style>
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const filterTabs = document.querySelectorAll('.filter-tab');
+    const messageCards = document.querySelectorAll('.message-card');
+    const searchInput = document.getElementById('messageSearch');
+
+    // Filter functionality
+    filterTabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            filterTabs.forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+            
+            const filter = this.getAttribute('data-filter');
+            filterMessages(filter, searchInput.value);
+        });
+    });
+
+    // Search functionality
+    searchInput.addEventListener('input', function() {
+        const activeFilter = document.querySelector('.filter-tab.active').getAttribute('data-filter');
+        filterMessages(activeFilter, this.value);
+    });
+
+    function filterMessages(statusFilter, searchTerm) {
+        messageCards.forEach(card => {
+            const status = card.getAttribute('data-status');
+            const searchData = card.getAttribute('data-search');
+            const isUnread = card.classList.contains('unread');
+            
+            let statusMatch = true;
+            if (statusFilter === 'unread') {
+                statusMatch = isUnread;
+            } else if (statusFilter !== 'all') {
+                statusMatch = status === statusFilter;
+            }
+            
+            const searchMatch = searchTerm === '' || searchData.includes(searchTerm.toLowerCase());
+            
+            card.style.display = (statusMatch && searchMatch) ? 'block' : 'none';
+        });
+    }
+});
+</script>
+{% endblock %}
+{% endblock %}

@@ -1,0 +1,431 @@
+{% extends "base.html" %}
+
+{% block title %}Our Projects - Color&Craft{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="container">
+        <h1 class="animated-gradient-text">Our Portfolio</h1>
+        <p>Discover our <span class="highlight-text">award-winning projects</span> that transform spaces</p>
+    </div>
+</section>
+
+<section class="all-projects">
+    <div class="container">
+        {% if projects %}
+            <div class="project-grid">
+                {% for project in projects %}
+                <article class="project-card" tabindex="0" data-project-index="{{ loop.index0 }}">
+                    <div class="project-image">
+                        <img src="{{ project.image_url }}" alt="{{ project.title }}" loading="lazy">
+                        <div class="image-overlay">
+                            <button class="preview-btn" type="button">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="project-content">
+                        <h3>{{ project.title }}</h3>
+                        <p>{{ project.description[:100] }}{% if project.description|length > 100 %}...{% endif %}</p>
+                        <div class="project-meta">
+                            <span class="project-date">
+                                {{ project.created_at.strftime('%b %Y') if project.created_at else 'Recent' }}
+                            </span>
+                            <span class="view-more">View Project</span>
+                        </div>
+                    </div>
+                </article>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <i class="fas fa-paint-brush"></i>
+                <h3>Coming Soon</h3>
+                <p>We're working on amazing projects to showcase here!</p>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Modal for Project Preview -->
+<div id="projectModal" class="modal" tabindex="-1" style="display:none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeProjectModal()">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="modal-body">
+                <img id="modalImage" src="" alt="" class="modal-img">
+                <div class="modal-text">
+                    <h2 id="modalTitle"></h2>
+                    <p id="modalDescription"></p>
+                    <div id="modalDate" class="modal-date"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .page-header {
+        padding: 8rem 0 4rem 0;
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+        color: white;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .page-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="2" fill="white" opacity="0.1"/></svg>') repeat;
+        background-size: 40px 40px;
+    }
+    
+    .animated-gradient-text {
+        font-size: 3.5rem;
+        font-weight: 800;
+        background: linear-gradient(90deg, #fff 0%, #f59e0b 50%, #fff 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 1rem;
+    }
+    
+    .highlight-text {
+        border-bottom: 3px solid var(--accent-color);
+        padding-bottom: 2px;
+    }
+    
+    .all-projects {
+        padding: 6rem 0;
+        background: #fafafa;
+    }
+    
+    .project-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 2.5rem;
+        margin-top: 3rem;
+    }
+    
+    .project-card {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.06);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: pointer;
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+    
+    .project-card:hover {
+        transform: translateY(-12px);
+        box-shadow: 0 20px 60px rgba(37,99,235,0.15);
+    }
+    
+    .project-image {
+        position: relative;
+        height: 280px;
+        overflow: hidden;
+        background: var(--gray-100);
+    }
+    
+    .project-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.6s ease;
+    }
+    
+    .project-card:hover .project-image img {
+        transform: scale(1.1);
+    }
+    
+    .image-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.7) 100%);
+        opacity: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: opacity 0.3s ease;
+    }
+    
+    .project-card:hover .image-overlay {
+        opacity: 1;
+    }
+    
+    .preview-btn {
+        background: white;
+        color: var(--primary-color);
+        border: none;
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        font-size: 1.2rem;
+        cursor: pointer;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .preview-btn:hover {
+        transform: scale(1.1);
+        background: var(--primary-color);
+        color: white;
+    }
+    
+    .project-content {
+        padding: 2rem;
+    }
+    
+    .project-content h3 {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        margin-bottom: 1rem;
+        line-height: 1.3;
+    }
+    
+    .project-content p {
+        font-size: 1rem;
+        color: #6b7280;
+        line-height: 1.6;
+        margin-bottom: 1.5rem;
+    }
+    
+    .project-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-top: 1px solid #f3f4f6;
+        padding-top: 1rem;
+    }
+    
+    .project-date {
+        font-size: 0.9rem;
+        color: #9ca3af;
+        font-weight: 500;
+    }
+    
+    .view-more {
+        font-size: 0.9rem;
+        color: var(--primary-color);
+        font-weight: 600;
+        padding: 0.5rem 1rem;
+        background: rgba(37,99,235,0.1);
+        border-radius: 20px;
+        transition: all 0.3s ease;
+    }
+    
+    .project-card:hover .view-more {
+        background: var(--primary-color);
+        color: white;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 6rem 2rem;
+        color: #6b7280;
+    }
+    
+    .empty-state i {
+        font-size: 4rem;
+        margin-bottom: 2rem;
+        color: var(--primary-color);
+        opacity: 0.3;
+    }
+    
+    .empty-state h3 {
+        font-size: 1.8rem;
+        margin-bottom: 1rem;
+        color: var(--primary-color);
+    }
+    
+    .modal {
+        position: fixed;
+        z-index: 9999;
+        inset: 0;
+        background: rgba(0,0,0,0.8);
+        backdrop-filter: blur(8px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        animation: fadeIn 0.3s ease forwards;
+    }
+    
+    @keyframes fadeIn {
+        to { opacity: 1; }
+    }
+    
+    .modal-dialog {
+        background: white;
+        border-radius: 24px;
+        max-width: 700px;
+        width: 90vw;
+        max-height: 90vh;
+        overflow: hidden;
+        box-shadow: 0 25px 100px rgba(0,0,0,0.3);
+        transform: scale(0.9);
+        animation: modalPop 0.3s ease forwards;
+    }
+    
+    @keyframes modalPop {
+        to { transform: scale(1); }
+    }
+    
+    .modal-content {
+        position: relative;
+        height: 100%;
+    }
+    
+    .modal-close {
+        position: absolute;
+        top: 1.5rem;
+        right: 1.5rem;
+        background: rgba(0,0,0,0.5);
+        border: none;
+        border-radius: 50%;
+        width: 44px;
+        height: 44px;
+        color: white;
+        font-size: 1.2rem;
+        cursor: pointer;
+        z-index: 10;
+        transition: all 0.3s ease;
+    }
+    
+    .modal-close:hover {
+        background: var(--danger-color);
+        transform: scale(1.1);
+    }
+    
+    .modal-body {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+    
+    .modal-img {
+        width: 100%;
+        height: 400px;
+        object-fit: cover;
+    }
+    
+    .modal-text {
+        padding: 2rem;
+        flex: 1;
+    }
+    
+    .modal-text h2 {
+        font-size: 1.8rem;
+        color: var(--primary-color);
+        margin-bottom: 1rem;
+    }
+    
+    .modal-text p {
+        color: #6b7280;
+        line-height: 1.6;
+        margin-bottom: 1.5rem;
+    }
+    
+    .modal-date {
+        color: #9ca3af;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    @media (max-width: 768px) {
+        .animated-gradient-text {
+            font-size: 2.5rem;
+        }
+        
+        .project-grid {
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+        
+        .modal-dialog {
+            width: 95vw;
+            margin: 1rem;
+        }
+        
+        .modal-img {
+            height: 250px;
+        }
+        
+        .modal-text {
+            padding: 1.5rem;
+        }
+    }
+</style>
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add event listeners to project cards
+        document.querySelectorAll('.project-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const index = this.dataset.projectIndex;
+                openProjectModal(parseInt(index));
+            });
+        });
+        
+        // Handle image errors
+        document.querySelectorAll('.project-image img').forEach(img => {
+            img.addEventListener('error', function() {
+                this.src = '{{ url_for("static", filename="images/placeholder.jpg") }}';
+            });
+        });
+    });
+    
+    function openProjectModal(idx) {
+        const modal = document.getElementById('projectModal');
+        const projectCards = document.querySelectorAll('.project-card');
+        const card = projectCards[idx];
+        
+        if (!card) return;
+        
+        // Extract data directly from the DOM
+        const img = card.querySelector('.project-image img');
+        const title = card.querySelector('.project-content h3').textContent;
+        const description = card.querySelector('.project-content p').textContent;
+        const date = card.querySelector('.project-date').textContent.trim();
+        
+        document.getElementById('modalImage').src = img.src;
+        document.getElementById('modalImage').alt = title;
+        document.getElementById('modalTitle').textContent = title;
+        document.getElementById('modalDescription').textContent = description;
+        document.getElementById('modalDate').innerHTML = `<i class="far fa-calendar-alt"></i> ${date}`;
+        
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+    
+    function closeProjectModal() {
+        document.getElementById('projectModal').style.display = 'none';
+        document.body.style.overflow = '';
+    }
+    
+    window.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeProjectModal();
+    });
+    
+    document.getElementById('projectModal').addEventListener('click', function(e) {
+        if (e.target === this) closeProjectModal();
+    });
+</script>
+{% endblock %}
+{% endblock %}

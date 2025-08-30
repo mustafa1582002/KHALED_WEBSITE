@@ -1,0 +1,16 @@
+2025-06-03 16:47:31,152 - INFO - UNAUTHORIZED_ACCESS - IP: 127.0.0.1 - Direct admin login attempt
+2025-06-03 16:47:50,113 - INFO - UNAUTHORIZED_ACCESS - IP: 127.0.0.1 - Direct admin login attempt
+2025-06-03 16:48:11,455 - INFO - UNAUTHORIZED_ACCESS - IP: 127.0.0.1 - Direct admin login attempt
+2025-06-03 16:48:42,187 - INFO - UNAUTHORIZED_ACCESS - IP: 127.0.0.1 - Unauthorized admin URL access attempt
+2025-06-03 16:49:05,867 - INFO - UNAUTHORIZED_ACCESS - IP: 127.0.0.1 - Direct admin login attempt
+2025-06-03 16:49:33,953 - INFO - UNAUTHORIZED_ACCESS - IP: 127.0.0.1 - Direct admin login attempt
+2025-06-03 17:01:21,744 - INFO - UNAUTHORIZED_ACCESS - IP: 127.0.0.1 - Direct admin login attempt
+2025-06-03 17:42:48,470 - INFO - UNAUTHORIZED_ACCESS - IP: 192.168.0.236 - Access attempt to admin.admin_redirect
+2025-06-03 17:43:01,643 - INFO - UNAUTHORIZED_ACCESS - IP: 192.168.0.236 - Access attempt to admin.admin_redirect
+2025-06-03 17:43:05,594 - INFO - UNAUTHORIZED_ACCESS - IP: 192.168.0.236 - Access attempt to admin.dashboard
+2025-06-03 17:43:11,313 - INFO - UNAUTHORIZED_LOGIN_ACCESS - IP: 192.168.0.236 - Direct admin login attempt
+2025-06-03 17:43:29,962 - INFO - UNAUTHORIZED_LOGIN_ACCESS - IP: 192.168.0.236 - Direct admin login attempt
+2025-06-03 17:49:00,980 - INFO - UNAUTHORIZED_ACCESS - IP: 192.168.0.236 - Access attempt to admin.dashboard
+2025-06-03 17:49:14,129 - INFO - UNAUTHORIZED_ACCESS - IP: 192.168.0.236 - Access attempt to admin.messages
+2025-06-03 17:56:39,142 - INFO - UNAUTHORIZED_ACCESS - IP: 192.168.0.236 - Access attempt to admin.logout
+2025-06-03 21:42:20,843 - INFO - UNAUTHORIZED_LOGIN_ACCESS - IP: 127.0.0.1 - Direct admin login attempt

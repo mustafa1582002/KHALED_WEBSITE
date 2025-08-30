@@ -1,0 +1,36 @@
+from app import create_app, db
+from app.models.admin_user import AdminUser
+from app.models.project import Project
+from app.models.message import Message
+from app.models.comment import Comment
+
+def init_database():
+    """Initialize database with admin user"""
+    app = create_app()
+    
+    with app.app_context():
+        # Create all tables
+        db.create_all()
+        
+        # Check if admin user exists
+        admin_user = AdminUser.query.filter_by(username='admin').first()
+        
+        if not admin_user:
+            # Create default admin user
+            admin_user = AdminUser.create_admin(
+                username='admin',
+                password='admin123',  # Change this!
+                email='admin@colorcraft.com',
+                full_name='Administrator'
+            )
+            print("✅ Default admin user created:")
+            print(f"  Username: admin")
+            print(f"  Password: admin123")
+            print(f"  Please change the password after first login!")
+        else:
+            print("✅ Admin user already exists")
+        
+        print("✅ Database initialized successfully!")
+
+if __name__ == '__main__':
+    init_database()

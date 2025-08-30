@@ -1,0 +1,789 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - Color&Craft{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <div class="admin-header">
+        <div class="admin-header-content">
+            <div class="admin-title">
+                <h1><i class="fas fa-tachometer-alt"></i> Admin Dashboard</h1>
+                <p>Welcome back! Manage your painting service business</p>
+            </div>
+            <div class="admin-actions">
+                <a href="{{ url_for('admin.add_project') }}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Add Project
+                </a>
+                <a href="{{ url_for('admin.logout') }}" class="btn btn-danger">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Session Security Info -->
+    <div class="admin-security-info">
+        <div class="security-status">
+            <div class="security-item">
+                <i class="fas fa-shield-alt"></i>
+                <span>Secure Session Active</span>
+            </div>
+            <div class="security-item">
+                <i class="fas fa-clock"></i>
+                <span>Login: {{ session.admin_login_time.split('T')[1][:5] if session.admin_login_time else 'Unknown' }}</span>
+            </div>
+            <div class="security-item">
+                <i class="fas fa-user"></i>
+                <span>User: {{ session.admin_username or 'Admin' }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon projects">
+                <i class="fas fa-folder-open"></i>
+            </div>
+            <div class="stat-content">
+                <h3>{{ projects_count or 0 }}</h3>
+                <p>Total Projects</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon messages">
+                <i class="fas fa-envelope"></i>
+            </div>
+            <div class="stat-content">
+                <h3>{{ unread_count or 0 }}</h3>
+                <p>Unread Messages</p>
+            </div>
+            <a href="{{ url_for('admin.messages') }}" class="stat-link">View All</a>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon comments">
+                <i class="fas fa-comments"></i>
+            </div>
+            <div class="stat-content">
+                <h3>{{ pending_comments_count or 0 }}</h3>
+                <p>Pending Comments</p>
+            </div>
+            <a href="{{ url_for('admin.comments') }}" class="stat-link">Manage</a>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon activity">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <div class="stat-content">
+                <h3>{{ admin_users_count or 0 }}</h3>
+                <p>Admin Users</p>
+            </div>
+            <a href="{{ url_for('admin.admin_users') }}" class="stat-link">Manage</a>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+        <h2><i class="fas fa-bolt"></i> Quick Actions</h2>
+        <div class="actions-grid">
+            <a href="{{ url_for('admin.add_project') }}" class="action-card">
+                <i class="fas fa-plus-circle"></i>
+                <h3>Add New Project</h3>
+                <p>Showcase your latest work</p>
+            </a>
+            <a href="{{ url_for('admin.admin_users') }}" class="action-card">
+                <i class="fas fa-users-cog"></i>
+                <h3>Manage Admins</h3>
+                <p>Add and manage admin users</p>
+            </a>
+            <a href="{{ url_for('admin.messages') }}" class="action-card">
+                <i class="fas fa-inbox"></i>
+                <h3>Check Messages</h3>
+                <p>Respond to client inquiries</p>
+            </a>
+            <a href="{{ url_for('admin.comments') }}" class="action-card">
+                <i class="fas fa-comment-dots"></i>
+                <h3>Moderate Comments</h3>
+                <p>Approve customer feedback</p>
+            </a>
+            <a href="{{ url_for('main.home') }}" class="action-card" target="_blank">
+                <i class="fas fa-external-link-alt"></i>
+                <h3>View Website</h3>
+                <p>See your live website</p>
+            </a>
+        </div>
+    </div>
+
+    <!-- Projects Management -->
+    <section class="admin-section">
+        <div class="section-header">
+            <h2><i class="fas fa-folder-open"></i> Recent Projects</h2>
+            <a href="{{ url_for('admin.add_project') }}" class="btn btn-outline">
+                <i class="fas fa-plus"></i> Add New
+            </a>
+        </div>
+        
+        {% if projects and projects|length > 0 %}
+            <div class="projects-grid">
+                {% for project in projects[:6] %}
+                <div class="project-card-admin" data-project-id="{{ project.id }}">
+                    <div class="project-image">
+                        <img src="{{ project.image_url }}" alt="{{ project.title }}" loading="lazy" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2Y1ZjVmNSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjOTk5Ij5JbWFnZSBOb3QgRm91bmQ8L3RleHQ+PC9zdmc+'">
+                        <!-- Always visible action buttons with CSRF protection -->
+                        <div class="project-actions-container">
+                            <a href="{{ url_for('admin.edit_project', project_id=project.id) }}" 
+                               class="action-btn edit-btn" 
+                               title="Edit Project"
+                               data-project-id="{{ project.id }}">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <form method="POST" action="{{ url_for('admin.delete_project', project_id=project.id) }}" style="display: inline;">
+                                <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+                                <button type="submit" 
+                                        class="action-btn delete-btn"
+                                        title="Delete Project"
+                                        data-project-id="{{ project.id }}"
+                                        data-project-title="{{ project.title }}"
+                                        onclick="return confirm('⚠️ DELETE PROJECT?\n\nProject: {{ project.title }}\n\nThis action cannot be undone and will permanently remove this project from your portfolio.\n\nAre you sure you want to continue?');">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="project-info">
+                        <h3>{{ project.title }}</h3>
+                        <p>{{ project.description[:100] }}{% if project.description|length > 100 %}...{% endif %}</p>
+                        <div class="project-meta">
+                            <span class="project-date">
+                                <i class="far fa-calendar"></i>
+                                {{ project.created_at.strftime('%b %d, %Y') if project.created_at else 'Recent' }}
+                            </span>
+                            {% if project.category %}
+                            <span class="project-category">
+                                <i class="fas fa-tag"></i>
+                                {{ project.category|title }}
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            {% if projects|length > 6 %}
+            <div class="view-all">
+                <p>Showing 6 of {{ projects|length }} projects</p>
+                <a href="#" class="btn btn-outline">View All Projects</a>
+            </div>
+            {% endif %}
+        {% else %}
+            <div class="empty-state">
+                <i class="fas fa-folder-open"></i>
+                <h3>No Projects Yet</h3>
+                <p>Start showcasing your work by adding your first project</p>
+                <a href="{{ url_for('admin.add_project') }}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Add First Project
+                </a>
+            </div>
+        {% endif %}
+    </section>
+</div>
+
+<style>
+.admin-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+    background: #f8fafc;
+    min-height: 100vh;
+}
+
+.admin-header {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+    border-radius: 16px;
+    padding: 3rem 2rem;
+    margin-bottom: 3rem;
+    color: white;
+    box-shadow: 0 8px 30px rgba(37, 99, 235, 0.2);
+}
+
+.admin-header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 2rem;
+}
+
+.admin-title h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.admin-title p {
+    opacity: 0.9;
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+.admin-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.btn-primary {
+    background: var(--accent-color);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #f97316;
+    transform: translateY(-2px);
+}
+
+.btn-danger {
+    background: #ef4444;
+    color: white;
+}
+
+.btn-danger:hover {
+    background: #dc2626;
+    transform: translateY(-2px);
+}
+
+.btn-outline {
+    background: transparent;
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.btn-outline:hover {
+    background: var(--primary-color);
+    color: white;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    border: 1px solid #e2e8f0;
+    position: relative;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: white;
+    margin-bottom: 1rem;
+}
+
+.stat-icon.projects { background: linear-gradient(135deg, #667eea, #764ba2); }
+.stat-icon.messages { background: linear-gradient(135deg, #f093fb, #f5576c); }
+.stat-icon.comments { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+.stat-icon.activity { background: linear-gradient(135deg, #43e97b, #38f9d7); }
+
+.stat-content h3 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.stat-content p {
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.stat-link {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    font-size: 0.8rem;
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.stat-link:hover {
+    color: var(--primary-light);
+}
+
+.quick-actions {
+    margin-bottom: 3rem;
+}
+
+.quick-actions h2 {
+    color: var(--text-primary);
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.actions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+}
+
+.action-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    text-decoration: none;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.action-card:hover {
+    border-color: var(--primary-color);
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+}
+
+.action-card i {
+    font-size: 3rem;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+}
+
+.action-card h3 {
+    font-size: 1.3rem;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.action-card p {
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.admin-section {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    overflow: hidden;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2rem;
+    border-bottom: 1px solid #e2e8f0;
+    background: #f8fafc;
+}
+
+.section-header h2 {
+    font-size: 1.5rem;
+    color: var(--text-primary);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 2rem;
+    padding: 2rem;
+}
+
+.project-card-admin {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    border: 1px solid #e2e8f0;
+    position: relative;
+}
+
+.project-card-admin:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+}
+
+.project-image {
+    position: relative;
+    height: 220px;
+    overflow: hidden;
+    background: #f8fafc;
+}
+
+.project-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.project-card-admin:hover .project-image img {
+    transform: scale(1.08);
+}
+
+/* Fixed Action Buttons - Always Visible */
+.project-actions-container {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    display: flex;
+    gap: 8px;
+    z-index: 100;
+}
+
+.action-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    color: white;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    backdrop-filter: blur(10px);
+}
+
+.action-btn:hover {
+    transform: scale(1.1) translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.action-btn:active {
+    transform: scale(0.95);
+}
+
+.edit-btn {
+    background: rgba(16, 185, 129, 0.9);
+}
+
+.edit-btn:hover {
+    background: rgba(16, 185, 129, 1);
+}
+
+.delete-btn {
+    background: rgba(239, 68, 68, 0.9);
+}
+
+.delete-btn:hover {
+    background: rgba(239, 68, 68, 1);
+}
+
+.project-info {
+    padding: 2rem 1.5rem;
+}
+
+.project-info h3 {
+    font-size: 1.3rem;
+    color: var(--text-primary);
+    margin-bottom: 0.75rem;
+    line-height: 1.4;
+    font-weight: 600;
+}
+
+.project-info p {
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+}
+
+.project-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.project-date, .project-category {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.project-category {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+    color: white;
+    padding: 0.4rem 1rem;
+    border-radius: 15px;
+    font-weight: 600;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.project-date i {
+    color: var(--primary-color);
+}
+
+.view-all {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-secondary);
+    border-top: 1px solid #e2e8f0;
+}
+
+.view-all p {
+    margin-bottom: 1rem;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--text-secondary);
+}
+
+.empty-state i {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.empty-state h3 {
+    font-size: 1.5rem;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.empty-state p {
+    margin-bottom: 2rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .admin-container {
+        padding: 1rem;
+    }
+    
+    .admin-header-content {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .admin-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .actions-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .projects-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .section-header {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+    
+    .project-meta {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .project-actions-container {
+        gap: 6px;
+    }
+    
+    .action-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+    }
+}
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Dashboard loaded, setting up event listeners...');
+    
+    // Handle Edit Button Clicks
+    document.querySelectorAll('.edit-btn').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            console.log('Edit button clicked');
+            
+            const projectId = this.getAttribute('data-project-id');
+            const editUrl = this.getAttribute('href');
+            
+            // Show loading state
+            const originalContent = this.innerHTML;
+            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            this.style.pointerEvents = 'none';
+            
+            // Navigate to edit page
+            setTimeout(() => {
+                window.location.href = editUrl;
+            }, 500);
+        });
+    });
+    
+    // Handle Delete Button Clicks
+    document.querySelectorAll('.delete-btn').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const projectId = this.getAttribute('data-project-id');
+            const projectTitle = this.getAttribute('data-project-title');
+            
+            // Custom confirmation dialog
+            const confirmed = confirm(`⚠️ DELETE PROJECT?\n\nProject: "${projectTitle}"\n\nThis action cannot be undone and will permanently remove this project from your portfolio.\n\nAre you sure you want to continue?`);
+            
+            if (confirmed) {
+                // Show loading state
+                const originalContent = this.innerHTML;
+                this.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                this.disabled = true;
+                
+                // Create and submit delete form
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = `/admin/project/delete/${projectId}`;
+                form.style.display = 'none';
+                document.body.appendChild(form);
+                
+                // Submit form
+                form.submit();
+            }
+        });
+    });
+    
+    // Add keyboard accessibility
+    document.querySelectorAll('.action-btn').forEach(button => {
+        button.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                this.click();
+            }
+        });
+        
+        // Make buttons focusable
+        if (!button.hasAttribute('tabindex')) {
+            button.setAttribute('tabindex', '0');
+        }
+    });
+    
+    // Show success message if redirected after delete
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('success') === 'delete') {
+        showSuccessMessage('Project deleted successfully!');
+    }
+    
+    function showSuccessMessage(message) {
+        const toast = document.createElement('div');
+        toast.innerHTML = `
+            <div style="
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: linear-gradient(135deg, #10b981, #059669);
+                color: white;
+                padding: 1rem 1.5rem;
+                border-radius: 12px;
+                box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+                z-index: 10000;
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+                font-weight: 600;
+                animation: slideInRight 0.3s ease;
+            ">
+                <i class="fas fa-check-circle"></i>
+                <span>${message}</span>
+            </div>
+        `;
+        
+        document.body.appendChild(toast);
+        
+        // Remove after 3 seconds
+        setTimeout(() => {
+            toast.style.animation = 'slideOutRight 0.3s ease';
+            setTimeout(() => {
+                if (document.body.contains(toast)) {
+                    document.body.removeChild(toast);
+                }
+            }, 300);
+        }, 3000);
+    }
+    
+    console.log('Event listeners set up successfully');
+});
+
+// Add CSS animations
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideInRight {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    
+    @keyframes slideOutRight {
+        from { transform: translateX(0); opacity: 1; }
+        to { transform: translateX(100%); opacity: 0; }
+    }
+`;
+document.head.appendChild(style);
+</script>
+{% endblock %}

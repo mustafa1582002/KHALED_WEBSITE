@@ -1,0 +1,711 @@
+{% extends "base.html" %}
+
+{% block title %}Contact Us - Color&Craft{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="container">
+        <h1 class="animated-gradient-text">Request a Service</h1>
+        <p>Get a <span class="highlight-text">free quote</span> for your next <span class="highlight-text">painting project</span></p>
+    </div>
+</section>
+
+<section class="contact-section">
+    <div class="container">
+        <div class="contact-wrapper">
+            <div class="contact-info">
+                <div class="section-header">
+                    <h2 class="section-title">Contact Information</h2>
+                    <p class="section-subtitle">Reach out to us through any of these channels</p>
+                </div>
+                
+                <div class="contact-methods">
+                    <div class="contact-method">
+                        <div class="contact-icon">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <div class="contact-details">
+                            <h3>Our Location</h3>
+                            <p>123 Painting Street<br>Colorful City, ST 12345</p>
+                        </div>
+                    </div>
+                    
+                    <div class="contact-method">
+                        <div class="contact-icon">
+                            <i class="fas fa-phone-alt"></i>
+                        </div>
+                        <div class="contact-details">
+                            <h3>Phone Number</h3>
+                            <p><a href="tel:+447592977155">+44 7592 977155</a></p>
+                            <p class="text-sm">Monday-Friday: 8am-6pm</p>
+                        </div>
+                    </div>
+                    
+                    <div class="contact-method">
+                        <div class="contact-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div class="contact-details">
+                            <h3>Email Address</h3>
+                            <p><a href="mailto:Colour&craft@gmail.com">Colour&craft@gmail.com</a></p>
+                            <p class="text-sm">We respond within 24 hours</p>
+                        </div>
+                    </div>
+                    
+                    <div class="contact-method">
+                        <div class="contact-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="contact-details">
+                            <h3>Working Hours</h3>
+                            <p>Monday-Friday: 8am-6pm<br>Saturday: 9am-2pm</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="social-contact">
+                    <h3>Connect With Us</h3>
+                    <div class="social-icons">
+                        <a href="#" class="social-icon"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-pinterest-p"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="contact-form-container">
+                <div class="section-header">
+                    <h2 class="section-title">Request a Service</h2>
+                    <p class="section-subtitle">Fill out the form below and we'll get back to you soon</p>
+                </div>
+                
+                <form method="POST" class="contact-form">
+                    <div class="form-group">
+                        <label for="name">Your Name <span class="required">*</span></label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email Address <span class="required">*</span></label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" id="phone" name="phone">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="service_type">Service Type</label>
+                        <select id="service_type" name="service_type">
+                            <option value="">Select a Service</option>
+                            {% for service in service_types %}
+                            <option value="{{ service }}">{{ service }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="message">Your Message <span class="required">*</span></label>
+                        <textarea id="message" name="message" rows="5" required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary btn-full">
+                            <i class="fas fa-paper-plane"></i> Send Message
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    /* Hide Top Bar on Contact Page */
+    .top-bar {
+        display: none !important;
+    }
+
+    /* Adjust header spacing since top bar is hidden */
+    .main-header {
+        margin-top: 0;
+    }
+
+    .navbar {
+        border-top: 3px solid var(--accent-color);
+    }
+
+    /* Page Header */
+    .page-header {
+        padding: 6rem 0 4rem 0;
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+        color: white;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .page-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="2" fill="white" opacity="0.1"/></svg>') repeat;
+        background-size: 40px 40px;
+    }
+    
+    .animated-gradient-text {
+        font-size: 3.5rem;
+        font-weight: 800;
+        background: linear-gradient(90deg, #fff 0%, #f59e0b 50%, #fff 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 1rem;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .highlight-text {
+        border-bottom: 3px solid var(--accent-color);
+        padding-bottom: 2px;
+        color: white !important;
+    }
+
+    /* Contact Section */
+    .contact-section {
+        padding: 5rem 0;
+        background-color: #f8fafc;
+    }
+    
+    .contact-wrapper {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 4rem;
+    }
+    
+    .contact-info {
+        padding: 2.5rem;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+    
+    .section-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+    
+    .section-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--primary-color) !important;
+        margin-bottom: 0.5rem;
+    }
+    
+    .section-subtitle {
+        color: #64748b !important;
+        font-size: 1.1rem;
+    }
+    
+    .contact-methods {
+        margin: 2rem 0;
+    }
+    
+    .contact-method {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 2rem;
+        padding: 1.5rem;
+        background: #f8fafc;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        border: 1px solid #e2e8f0;
+    }
+    
+    .contact-method:hover {
+        background: #f1f5f9;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    
+    .contact-icon {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white !important;
+        font-size: 1.4rem;
+        margin-right: 1.5rem;
+        flex-shrink: 0;
+        box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2);
+    }
+    
+    .contact-details h3 {
+        font-size: 1.3rem;
+        margin-bottom: 0.5rem;
+        color: #1e293b !important;
+        font-weight: 600;
+    }
+    
+    .contact-details p {
+        color: #475569 !important;
+        margin-bottom: 0.3rem;
+        line-height: 1.5;
+        font-size: 1rem;
+    }
+    
+    .contact-details a {
+        color: var(--primary-color) !important;
+        text-decoration: none;
+        font-weight: 600;
+        transition: color 0.3s ease;
+    }
+    
+    .contact-details a:hover {
+        color: var(--primary-light) !important;
+        text-decoration: underline;
+    }
+    
+    .text-sm {
+        font-size: 0.9rem !important;
+        opacity: 0.8;
+        color: #64748b !important;
+    }
+    
+    /* Fixed Social Contact Section */
+    .social-contact {
+        margin-top: 2.5rem;
+        padding-top: 2rem;
+        border-top: 1px solid #e2e8f0;
+        text-align: center;
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 2rem 1.5rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    
+    .social-contact h3 {
+        font-size: 1.3rem;
+        margin-bottom: 1.5rem;
+        color: var(--primary-color) !important;
+        font-weight: 600;
+        text-shadow: none;
+    }
+    
+    .social-icons {
+        display: flex;
+        justify-content: center;
+        gap: 1.25rem;
+        margin-top: 1rem;
+    }
+    
+    /* Enhanced Social Icons with High Contrast */
+    .social-icon {
+        width: 55px;
+        height: 55px;
+        background: linear-gradient(135deg, #1e293b, #334155) !important;
+        border: 3px solid var(--primary-color) !important;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #ffffff !important;
+        font-size: 1.3rem;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .social-icon:before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        z-index: 1;
+    }
+    
+    .social-icon i {
+        position: relative;
+        z-index: 2;
+        color: #ffffff !important;
+        filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5));
+    }
+    
+    .social-icon:hover {
+        transform: translateY(-5px) scale(1.1);
+        box-shadow: 0 8px 25px rgba(37, 99, 235, 0.4);
+        border-color: var(--accent-color) !important;
+    }
+    
+    .social-icon:hover:before {
+        opacity: 1;
+    }
+    
+    .social-icon:hover i {
+        color: #ffffff !important;
+        transform: scale(1.1);
+    }
+
+    /* Specific Social Platform Colors on Hover */
+    .social-icon:nth-child(1):hover:before {
+        background: #1877f2; /* Facebook Blue */
+    }
+    
+    .social-icon:nth-child(2):hover:before {
+        background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); /* Instagram Gradient */
+    }
+    
+    .social-icon:nth-child(3):hover:before {
+        background: #bd081c; /* Pinterest Red */
+    }
+    
+    .social-icon:nth-child(4):hover:before {
+        background: #0077b5; /* LinkedIn Blue */
+    }
+
+    /* Form Section */
+    .contact-form-container {
+        padding: 2.5rem;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+    
+    .contact-form {
+        margin-top: 2rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: #1e293b !important;
+        font-size: 1rem;
+    }
+    
+    .required {
+        color: var(--accent-color) !important;
+    }
+    
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 1rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        font-size: 1rem;
+        transition: border-color 0.3s ease;
+        background: #fafafa;
+        color: #1e293b !important;
+        box-sizing: border-box;
+    }
+    
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        background: white;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+    
+    .form-group textarea {
+        resize: vertical;
+        min-height: 120px;
+    }
+    
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1rem 2rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+        text-decoration: none;
+        border-radius: 50px;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+        color: white !important;
+        box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(37, 99, 235, 0.4);
+        background: linear-gradient(135deg, var(--primary-light), var(--accent-color));
+    }
+    
+    .btn-full {
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* Alternative High Contrast Social Icons */
+    .social-icons-alt {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-top: 1.5rem;
+        padding: 1.5rem;
+        background: #f8fafc;
+        border-radius: 12px;
+        border: 2px solid #e2e8f0;
+    }
+    
+    .social-icon-alt {
+        width: 50px;
+        height: 50px;
+        background: #1e293b !important;
+        color: #ffffff !important;
+        border: 2px solid var(--primary-color) !important;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        font-size: 1.2rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    .social-icon-alt:hover {
+        background: var(--primary-color) !important;
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+        border-color: var(--accent-color) !important;
+    }
+    
+    .social-icon-alt i {
+        color: #ffffff !important;
+    }
+
+    /* Mobile Responsive Design */
+    @media (max-width: 768px) {
+        .page-header {
+            padding: 4rem 0 3rem 0;
+        }
+        
+        .animated-gradient-text {
+            font-size: 2.5rem;
+        }
+        
+        .contact-section {
+            padding: 3rem 0;
+        }
+        
+        .contact-wrapper {
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+        
+        .contact-info,
+        .contact-form-container {
+            padding: 2rem 1.5rem;
+        }
+        
+        .section-title {
+            font-size: 1.6rem;
+        }
+        
+        .section-subtitle {
+            font-size: 1rem;
+        }
+        
+        .contact-method {
+            flex-direction: column;
+            text-align: center;
+            padding: 1.5rem 1rem;
+        }
+        
+        .contact-icon {
+            margin: 0 0 1rem 0;
+            align-self: center;
+        }
+        
+        .contact-details h3 {
+            font-size: 1.2rem;
+        }
+        
+        .social-icons {
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .social-icon {
+            width: 50px;
+            height: 50px;
+            font-size: 1.1rem;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 0.875rem;
+            font-size: 0.95rem;
+        }
+        
+        .btn {
+            padding: 1rem 1.5rem;
+            font-size: 1rem;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .page-header {
+            padding: 3rem 0 2rem 0;
+        }
+        
+        .animated-gradient-text {
+            font-size: 2rem;
+        }
+        
+        .contact-info,
+        .contact-form-container {
+            padding: 1.5rem 1rem;
+        }
+        
+        .section-header {
+            margin-bottom: 2rem;
+        }
+        
+        .contact-method {
+            margin-bottom: 1.5rem;
+            padding: 1.25rem 0.75rem;
+        }
+        
+        .contact-icon {
+            width: 50px;
+            height: 50px;
+            font-size: 1.2rem;
+        }
+        
+        .social-contact {
+            margin-top: 2rem;
+            padding: 1.5rem 1rem;
+        }
+        
+        .social-icons {
+            gap: 0.75rem;
+        }
+        
+        .social-icon {
+            width: 45px;
+            height: 45px;
+            font-size: 1rem;
+        }
+    }
+
+    /* Ensure visibility on all backgrounds */
+    .social-contact * {
+        position: relative;
+        z-index: 10;
+    }
+    
+    .social-icon {
+        position: relative;
+        z-index: 10;
+    }
+    
+    /* Force high contrast */
+    .social-icon,
+    .social-icon i {
+        color: #ffffff !important;
+        background-color: #1e293b !important;
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Phone number formatting
+        const phoneInput = document.getElementById('phone');
+        if (phoneInput) {
+            phoneInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                let formattedValue = '';
+                
+                if (value.length > 0) {
+                    if (value.length <= 3) {
+                        formattedValue = `(${value}`;
+                    } else if (value.length <= 6) {
+                        formattedValue = `(${value.slice(0, 3)}) ${value.slice(3)}`;
+                    } else {
+                        formattedValue = `(${value.slice(0, 3)}) ${value.slice(3, 6)}-${value.slice(6, 10)}`;
+                    }
+                }
+                
+                e.target.value = formattedValue;
+            });
+        }
+
+        // Form submission enhancement
+        const contactForm = document.querySelector('.contact-form');
+        if (contactForm) {
+            contactForm.addEventListener('submit', function(e) {
+                const submitBtn = contactForm.querySelector('button[type="submit"]');
+                const originalText = submitBtn.innerHTML;
+                
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+                submitBtn.disabled = true;
+                
+                // Re-enable after 3 seconds if form doesn't redirect
+                setTimeout(() => {
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                }, 3000);
+            });
+        }
+
+        // Add smooth animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Observe contact methods and form elements
+        document.querySelectorAll('.contact-method, .form-group').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(el);
+        });
+    });
+</script>
+{% endblock %}

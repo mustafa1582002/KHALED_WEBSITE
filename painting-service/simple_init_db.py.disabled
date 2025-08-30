@@ -1,0 +1,78 @@
+from app import create_app, db
+from app.models.admin_user import AdminUser
+from app.models.project import Project
+from app.models.message import Message
+from app.models.comment import Comment
+
+def simple_init():
+    """Simple database initialization without complex relationships"""
+    print("🚀 Starting Simple Database Initialization...")
+    
+    app = create_app()
+    
+    with app.app_context():
+        try:
+            # Drop all tables and recreate them
+            print("🗑️ Dropping existing tables...")
+            db.drop_all()
+            
+            print("🏗️ Creating new tables...")
+            db.create_all()
+            
+            print("👤 Creating admin user...")
+            # Check if admin user exists
+            admin_user = AdminUser.query.filter_by(username='admin').first()
+            
+            if not admin_user:
+                # Create default admin user
+                admin_user = AdminUser.create_admin(
+                    username='admin',
+                    password='admin123',
+                    email='admin@colorcraft.com',
+                    full_name='Administrator'
+                )
+                print("✅ Admin user created successfully!")
+                print(f"   Username: admin")
+                print(f"   Password: admin123")
+            else:
+                print("✅ Admin user already exists")
+            
+            # Create a sample project
+            print("🎨 Creating sample project...")
+            sample_project = Project(
+                title="Modern Kitchen Renovation",
+                description="A beautiful modern kitchen with contemporary colors and premium finishes.",
+                image_url="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800",
+                category="interior"
+            )
+            sample_project.save()
+            print("✅ Sample project created!")
+            
+            # Create a sample comment
+            print("💬 Creating sample comment...")
+            sample_comment = Comment(
+                name="John Doe",
+                email="john@example.com",
+                content="Amazing work! The attention to detail is incredible.",
+                client_type="homeowner",
+                project_id=sample_project.id,
+                rating=5
+            )
+            sample_comment.is_approved = True  # Auto-approve for demo
+            sample_comment.save()
+            print("✅ Sample comment created!")
+            
+            print("\n🎉 Database initialization completed successfully!")
+            print("=" * 50)
+            print("🔑 Admin Login Credentials:")
+            print("   Username: admin")
+            print("   Password: admin123")
+            print("🌐 Access admin panel at: http://localhost:5000/admin/login")
+            
+        except Exception as e:
+            print(f"❌ Error during initialization: {str(e)}")
+            import traceback
+            traceback.print_exc()
+
+if __name__ == '__main__':
+    simple_init()

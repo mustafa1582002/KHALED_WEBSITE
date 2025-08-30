@@ -1,0 +1,1655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Project</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    {% extends "base.html" %}
+
+    {% block title %}{% if project %}Edit Project{% else %}Add New Project{% endif %} - Color&Craft Admin{% endblock %}
+
+    {% block content %}
+    <div class="admin-container">
+        <!-- Enhanced Header with Breadcrumbs -->
+        <div class="admin-header">
+            <div class="admin-header-content">
+                <div class="admin-title">
+                    <div class="breadcrumbs">
+                        <a href="{{ url_for('admin.dashboard') }}">
+                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                        </a>
+                        <span class="breadcrumb-separator">/</span>
+                        <span>{% if project %}Edit Project{% else %}Add Project{% endif %}</span>
+                    </div>
+                    <h1>
+                        <div class="title-icon">
+                            <i class="fas fa-{{ 'edit' if project else 'plus-circle' }}"></i>
+                        </div>
+                        <div class="title-content">
+                            <span class="main-title">{% if project %}Edit Project{% else %}Create New Project{% endif %}</span>
+                            <span class="sub-title">{% if project %}Update project details and showcase{% else %}Showcase your latest work to potential clients{% endif %}</span>
+                        </div>
+                    </h1>
+                </div>
+                <div class="admin-actions">
+                    <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    </a>
+                    {% if project %}
+                    <a href="{{ url_for('main.projects') }}" class="btn btn-outline" target="_blank">
+                        <i class="fas fa-external-link-alt"></i> View Live
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Enhanced Form Container -->
+        <div class="form-section">
+            <div class="form-container">
+                <div class="form-header">
+                    <div class="form-progress">
+                        <div class="progress-step active" data-step="1">
+                            <div class="step-icon"><i class="fas fa-info-circle"></i></div>
+                            <span>Basic Info</span>
+                        </div>
+                        <div class="progress-step" data-step="2">
+                            <div class="step-icon"><i class="fas fa-image"></i></div>
+                            <span>Image & Preview</span>
+                        </div>
+                        <div class="progress-step" data-step="3">
+                            <div class="step-icon"><i class="fas fa-check"></i></div>
+                            <span>Review & Save</span>
+                        </div>
+                    </div>
+                </div>
+
+                <form method="POST" enctype="multipart/form-data">
+                    <div class="form-content">
+                        <!-- Step 1: Basic Information -->
+                        <div class="form-step active" data-step="1">
+                            <div class="step-header">
+                                <h3><i class="fas fa-info-circle"></i> Project Information</h3>
+                                <p>Provide the basic details about your project</p>
+                            </div>
+                            
+                            <div class="form-grid">
+                                <div class="form-column">
+                                    <div class="form-group">
+                                        <label for="title" class="form-label">
+                                            <i class="fas fa-heading"></i> Project Title
+                                            <span class="required">*</span>
+                                        </label>
+                                        <input type="text" id="title" name="title" 
+                                               value="{{ project.title if project else '' }}" 
+                                               required class="form-input"
+                                               placeholder="e.g., Modern Living Room Transformation"
+                                               maxlength="100">
+                                        <div class="form-feedback">
+                                            <span class="form-hint">Choose a descriptive and engaging title</span>
+                                            <span class="char-counter"><span id="titleCount">0</span>/100</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="description" class="form-label">
+                                            <i class="fas fa-align-left"></i> Project Description
+                                            <span class="required">*</span>
+                                        </label>
+                                        <textarea id="description" name="description" 
+                                                  required class="form-textarea"
+                                                  placeholder="Describe the project details, techniques used, materials, challenges overcome, and final results achieved..."
+                                                  rows="8" maxlength="1000">{{ project.description if project else '' }}</textarea>
+                                        <div class="form-feedback">
+                                            <span class="form-hint">Provide detailed information that showcases your expertise</span>
+                                            <span class="char-counter"><span id="descCount">0</span>/1000</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="category" class="form-label">
+                                            <i class="fas fa-tag"></i> Project Category
+                                        </label>
+                                        <select id="category" name="category" class="form-select">
+                                            <option value="">Select a category</option>
+                                            <option value="interior" {% if project and project.category == 'interior' %}selected{% endif %}>Interior Painting</option>
+                                            <option value="exterior" {% if project and project.category == 'exterior' %}selected{% endif %}>Exterior Painting</option>
+                                            <option value="commercial" {% if project and project.category == 'commercial' %}selected{% endif %}>Commercial Project</option>
+                                            <option value="decorative" {% if project and project.category == 'decorative' %}selected{% endif %}>Decorative Finishes</option>
+                                            <option value="restoration" {% if project and project.category == 'restoration' %}selected{% endif %}>Restoration Work</option>
+                                        </select>
+                                        <span class="form-hint">Helps organize your portfolio</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-column">
+                                    <div class="info-card">
+                                        <div class="info-header">
+                                            <i class="fas fa-lightbulb"></i>
+                                            <h4>Pro Tips</h4>
+                                        </div>
+                                        <div class="info-content">
+                                            <div class="tip-item">
+                                                <i class="fas fa-check-circle"></i>
+                                                <p>Use action words in your title to grab attention</p>
+                                            </div>
+                                            <div class="tip-item">
+                                                <i class="fas fa-check-circle"></i>
+                                                <p>Include specific details about techniques and materials used</p>
+                                            </div>
+                                            <div class="tip-item">
+                                                <i class="fas fa-check-circle"></i>
+                                                <p>Mention any challenges you overcame</p>
+                                            </div>
+                                            <div class="tip-item">
+                                                <i class="fas fa-check-circle"></i>
+                                                <p>Highlight the transformation and client satisfaction</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 2: Image & Preview -->
+                        <div class="form-step" data-step="2">
+                            <div class="step-header">
+                                <h3><i class="fas fa-image"></i> Project Image & Preview</h3>
+                                <p>Add a high-quality image and see how your project will appear</p>
+                            </div>
+                            
+                            <div class="form-grid">
+                                <div class="form-column">
+                                    <div class="form-group">
+                                        <label for="image_url" class="form-label">
+                                            <i class="fas fa-link"></i> Image URL <span class="optional">(Optional if uploading file)</span>
+                                        </label>
+                                        <div class="url-input-group">
+                                            <input type="url" id="image_url" name="image_url" 
+                                                   value="{{ project.image_url if project and not project.image_url.startswith('/static') else '' }}" 
+                                                   class="form-input"
+                                                   placeholder="https://example.com/your-project-image.jpg">
+                                            <button type="button" class="url-test-btn" id="testUrl">
+                                                <i class="fas fa-eye"></i> Test URL
+                                            </button>
+                                        </div>
+                                        <div class="form-feedback">
+                                            <span class="form-hint">Paste an image URL or upload a file below</span>
+                                            <div class="url-status" id="urlStatus"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="image_file" class="form-label">
+                                            <i class="fas fa-upload"></i> Upload Image
+                                        </label>
+                                        <div class="file-upload-area">
+                                            <div class="upload-zone" id="uploadZone">
+                                                <input type="file" 
+                                                       id="image_file" 
+                                                       name="image_file" 
+                                                       accept="image/*"
+                                                       class="file-input" 
+                                                       style="display: none;">
+                                                <div class="upload-content">
+                                                    <i class="fas fa-cloud-upload-alt"></i>
+                                                    <h4>Drag & drop an image here or click to browse</h4>
+                                                    <p>JPG, PNG, GIF up to 10MB</p>
+                                                </div>
+                                            </div>
+                                            <div id="imagePreview" class="image-preview" style="display: none;">
+                                                <img src="" alt="Preview">
+                                                <button type="button" class="remove-image" onclick="removeImage()">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="image-upload-zone">
+                                        <div class="upload-area" id="uploadArea">
+                                            <i class="fas fa-cloud-upload-alt"></i>
+                                            <h4>Alternative: Upload Image</h4>
+                                            <p>Drag & drop an image here or click to browse</p>
+                                            <button type="button" class="btn btn-outline">Choose File</button>
+                                            <input type="file" id="imageFile" accept="image/*" style="display: none;">
+                                        </div>
+                                        <div class="upload-progress" id="uploadProgress" style="display: none;">
+                                            <div class="progress-bar">
+                                                <div class="progress-fill"></div>
+                                            </div>
+                                            <span class="progress-text">Uploading... 0%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-column">
+                                    <div class="preview-section">
+                                        <h4><i class="fas fa-eye"></i> Live Preview</h4>
+                                        
+                                        <!-- Large Image Preview -->
+                                        <div class="image-preview" id="imagePreview">
+                                            {% if project and project.image_url %}
+                                                <img src="{{ project.image_url }}" alt="{{ project.title }}" loading="lazy">
+                                                <div class="image-overlay">
+                                                    <div class="image-actions">
+                                                        <button type="button" class="action-btn" onclick="openImageModal()">
+                                                            <i class="fas fa-expand"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            {% else %}
+                                                <div class="no-preview">
+                                                    <i class="fas fa-image"></i>
+                                                    <p>Image preview will appear here</p>
+                                                    <span>Enter an image URL to see the preview</span>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <!-- Project Card Preview -->
+                                        <div class="card-preview-container">
+                                            <h5>How it will appear on your website:</h5>
+                                            <div class="project-preview-card" id="projectPreview">
+                                                <div class="preview-card-image">
+                                                    {% if project and project.image_url %}
+                                                        <img src="{{ project.image_url }}" alt="Preview">
+                                                    {% else %}
+                                                        <div class="preview-placeholder">
+                                                            <i class="fas fa-image"></i>
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
+                                                <div class="preview-card-content">
+                                                    <h4 id="previewTitle">{{ project.title if project else 'Project Title' }}</h4>
+                                                    <p id="previewDescription">{{ project.description[:100] if project else 'Project description will appear here...' }}{% if project and project.description|length > 100 %}...{% endif %}</p>
+                                                    <div class="preview-meta">
+                                                        <span class="preview-date">
+                                                            <i class="far fa-calendar"></i> 
+                                                            {{ project.created_at.strftime('%b %d, %Y') if project and project.created_at else 'Today' }}
+                                                        </span>
+                                                        {% if project and project.category %}
+                                                        <span class="preview-category">
+                                                            <i class="fas fa-tag"></i> {{ project.category|title }}
+                                                        </span>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 3: Review & Save -->
+                        <div class="form-step" data-step="3">
+                            <div class="step-header">
+                                <h3><i class="fas fa-check"></i> Review & Publish</h3>
+                                <p>Review your project details before saving</p>
+                            </div>
+                            
+                            <div class="review-container">
+                                <div class="review-card">
+                                    <div class="review-header">
+                                        <h4>Project Summary</h4>
+                                        <span class="status-badge">Ready to Publish</span>
+                                    </div>
+                                    <div class="review-content" id="reviewContent">
+                                        <!-- Content will be populated by JavaScript -->
+                                    </div>
+                                </div>
+                                
+                                <div class="publish-options">
+                                    <div class="option-group">
+                                        <h5>Visibility Options</h5>
+                                        <label class="checkbox-label">
+                                            <input type="checkbox" name="featured" id="featured" {% if project and project.featured %}checked{% endif %}>
+                                            <span class="checkmark"></span>
+                                            Feature this project on homepage
+                                        </label>
+                                        <label class="checkbox-label">
+                                            <input type="checkbox" name="published" id="published" {% if not project or project.published %}checked{% endif %}>
+                                            <span class="checkmark"></span>
+                                            Publish immediately (make visible to visitors)
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div
+                    
+                    <!-- Form Navigation -->
+                    <div class="form-navigation">
+                        <button type="button" class="btn btn-secondary" id="prevStep" style="display: none;">
+                            <i class="fas fa-arrow-left"></i> Previous
+                        </button>
+                        <div class="nav-info">
+                            <span id="stepInfo">Step 1 of 3</span>
+                        </div>
+                        <button type="button" class="btn btn-primary" id="nextStep">
+                            Next <i class="fas fa-arrow-right"></i>
+                        </button>
+                        <button type="submit" class="btn btn-success btn-lg" id="submitBtn" style="display: none;">
+                            <i class="fas fa-save"></i> 
+                            {% if project %}Update Project{% else %}Create Project{% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Modal -->
+    <div class="image-modal" id="imageModal" style="display: none;">
+        <div class="modal-backdrop" onclick="closeImageModal()"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4>Image Preview</h4>
+                <button type="button" class="modal-close" onclick="closeImageModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <img id="modalImage" src="" alt="Full size preview">
+            </div>
+        </div>
+    </div>
+
+    <style>
+    /* Enhanced Admin Container */
+    .admin-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+        background: var(--gray-50);
+        min-height: 100vh;
+    }
+
+    /* Enhanced Header */
+    .admin-header {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+        border-radius: 16px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        color: white;
+        box-shadow: 0 8px 30px rgba(37, 99, 235, 0.2);
+    }
+
+    .admin-header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 2rem;
+    }
+
+    .breadcrumbs {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+        opacity: 0.9;
+    }
+
+    .breadcrumbs a {
+        color: white;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: opacity 0.3s ease;
+    }
+
+    .breadcrumbs a:hover {
+        opacity: 0.8;
+    }
+
+    .breadcrumb-separator {
+        opacity: 0.6;
+    }
+
+    .admin-title h1 {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin: 0;
+    }
+
+    .title-icon {
+        width: 60px;
+        height: 60px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+
+    .title-content {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .main-title {
+        font-size: 2rem;
+        font-weight: 700;
+        line-height: 1.2;
+    }
+
+    .sub-title {
+        font-size: 1rem;
+        opacity: 0.9;
+        margin-top: 0.25rem;
+    }
+
+    .admin-actions {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+        cursor: pointer;
+        font-size: 0.9rem;
+    }
+
+    .btn-primary {
+        background: var(--accent-color);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: #f97316;
+        transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.3);
+    }
+
+    .btn-outline {
+        background: transparent;
+        border-color: rgba(255, 255, 255, 0.5);
+        color: white;
+    }
+
+    .btn-outline:hover {
+        background: rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-success {
+        background: #10b981;
+        color: white;
+    }
+
+    .btn-success:hover {
+        background: #059669;
+        transform: translateY(-2px);
+    }
+
+    /* Form Section */
+    .form-section {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+    }
+
+    .form-header {
+        background: #f8fafc;
+        padding: 2rem;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .form-progress {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+    }
+
+    .progress-step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.75rem;
+        position: relative;
+        flex: 1;
+        max-width: 200px;
+    }
+
+    .progress-step::before {
+        content: '';
+        position: absolute;
+        top: 30px;
+        left: 60px;
+        width: calc(100% - 60px);
+        height: 2px;
+        background: #e2e8f0;
+        z-index: 1;
+    }
+
+    .progress-step:last-child::before {
+        display: none;
+    }
+
+    .progress-step.completed::before {
+        background: var(--primary-color);
+    }
+
+    .step-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: #e2e8f0;
+        color: #64748b;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        position: relative;
+        z-index: 2;
+        transition: all 0.3s ease;
+    }
+
+    .progress-step.active .step-icon {
+        background: var(--primary-color);
+        color: white;
+    }
+
+    .progress-step.completed .step-icon {
+        background: var(--primary-color);
+        color: white;
+    }
+
+    .progress-step span {
+        font-weight: 600;
+        color: #64748b;
+        font-size: 0.9rem;
+    }
+
+    .progress-step.active span {
+        color: var(--primary-color);
+    }
+
+    /* Form Content */
+    .form-content {
+        padding: 3rem;
+    }
+
+    .form-step {
+        display: none;
+    }
+
+    .form-step.active {
+        display: block;
+    }
+
+    .step-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    .step-header h3 {
+        font-size: 1.5rem;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+    }
+
+    .step-header p {
+        color: var(--text-secondary);
+        font-size: 1rem;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 3rem;
+        margin-bottom: 2rem;
+    }
+
+    .form-column {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .required {
+        color: var(--danger-color);
+        font-weight: 700;
+    }
+
+    .form-input, .form-textarea, .form-select {
+        padding: 1rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: white;
+    }
+
+    .form-input:focus, .form-textarea:focus, .form-select:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .form-textarea {
+        resize: vertical;
+        min-height: 120px;
+    }
+
+    .form-feedback {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.875rem;
+    }
+
+    .form-hint {
+        color: var(--text-secondary);
+    }
+
+    .char-counter {
+        color: var(--text-secondary);
+        font-weight: 600;
+    }
+
+    .url-input-group {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .url-input-group .form-input {
+        flex: 1;
+    }
+
+    .url-test-btn {
+        padding: 1rem 1.5rem;
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+    }
+
+    .url-test-btn:hover {
+        background: var(--primary-light);
+    }
+
+    .url-status {
+        margin-top: 0.5rem;
+        padding: 0.5rem;
+        border-radius: 4px;
+        font-size: 0.875rem;
+        display: none;
+    }
+
+    .url-status.success {
+        background: #dcfce7;
+        color: #166534;
+        border: 1px solid #bbf7d0;
+        display: block;
+    }
+
+    .url-status.error {
+        background: #fef2f2;
+        color: #dc2626;
+        border: 1px solid #fecaca;
+        display: block;
+    }
+
+    /* Info Card */
+    .info-card {
+        background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+        border-radius: 12px;
+        padding: 2rem;
+        border: 1px solid #e2e8f0;
+    }
+
+    .info-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .info-header i {
+        color: var(--accent-color);
+        font-size: 1.25rem;
+    }
+
+    .info-header h4 {
+        color: var(--text-primary);
+        margin: 0;
+    }
+
+    .tip-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+    }
+
+    .tip-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .tip-item i {
+        color: #10b981;
+        margin-top: 0.125rem;
+        flex-shrink: 0;
+    }
+
+    .tip-item p {
+        margin: 0;
+        color: var(--text-secondary);
+        line-height: 1.5;
+    }
+
+    /* Image Upload Zone */
+    .image-upload-zone {
+        margin-top: 2rem;
+    }
+
+    .upload-area {
+        border: 3px dashed var(--gray-300);
+        border-radius: 12px;
+        padding: 3rem 2rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .upload-area:hover {
+        border-color: var(--primary-color);
+        background: var(--primary-light-bg);
+    }
+
+    .upload-area i {
+        font-size: 3rem;
+        color: var(--primary-color);
+        margin-bottom: 1rem;
+    }
+
+    .upload-area h4 {
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .upload-area p {
+        color: var(--text-secondary);
+        margin-bottom: 1.5rem;
+    }
+
+    /* Preview Section */
+    .preview-section {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .preview-section h4 {
+        color: var(--text-primary);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .image-preview {
+        background: #f8fafc;
+        border: 2px dashed #e2e8f0;
+        border-radius: 12px;
+        height: 300px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .image-preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+
+    .image-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .image-preview:hover .image-overlay {
+        opacity: 1;
+    }
+
+    .image-actions {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .action-btn {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+    }
+
+    .action-btn:hover {
+        background: var(--primary-light);
+        transform: scale(1.1);
+    }
+
+    .no-preview {
+        text-align: center;
+        color: var(--text-secondary);
+    }
+
+    .no-preview i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+
+    .no-preview p {
+        font-size: 1.1rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .no-preview span {
+        font-size: 1rem;
+        opacity: 0.7;
+    }
+
+    /* Card Preview */
+    .card-preview-container {
+        margin-top: 2rem;
+    }
+
+    .card-preview-container h5 {
+        margin-bottom: 1rem;
+        font-size: 1rem;
+        color: var(--text-secondary);
+    }
+
+    .project-preview-card {
+        background: white;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e2e8f0;
+        transition: all 0.3s ease;
+    }
+
+    .project-preview-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
+    }
+
+    .preview-card-image {
+        height: 180px;
+        background: #f8fafc;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .preview-card-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+
+    .project-preview-card:hover .preview-card-image img {
+        transform: scale(1.05);
+    }
+
+    .preview-placeholder {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        color: var(--text-secondary);
+        font-size: 2.5rem;
+    }
+
+    .preview-card-content {
+        padding: 1.5rem;
+    }
+
+    .preview-card-content h4 {
+        color: var(--text-primary);
+        margin-bottom: 0.75rem;
+        font-size: 1.2rem;
+        line-height: 1.3;
+    }
+
+    .preview-card-content p {
+        color: var(--text-secondary);
+        line-height: 1.6;
+        margin-bottom: 1rem;
+        font-size: 0.95rem;
+    }
+
+    .preview-meta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+    }
+
+    .preview-date, .preview-category {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .preview-category {
+        background: var(--primary-color);
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 12px;
+        font-weight: 600;
+    }
+
+    /* Review Section */
+    .review-container {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 2rem;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .review-card {
+        background: #f8fafc;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+        overflow: hidden;
+    }
+
+    .review-header {
+        background: white;
+        padding: 1.5rem;
+        border-bottom: 1px solid #e2e8f0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .review-header h4 {
+        margin: 0;
+        color: var(--text-primary);
+    }
+
+    .status-badge {
+        background: #10b981;
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
+
+    .review-content {
+        padding: 1.5rem;
+    }
+
+    /* Form Navigation */
+    .form-navigation {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 3rem;
+        padding-top: 2rem;
+        border-top: 1px solid #e2e8f0;
+    }
+
+    .nav-info {
+        font-weight: 600;
+        color: var(--text-secondary);
+    }
+
+    .btn-lg {
+        padding: 1.25rem 2.5rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+        border-radius: 12px;
+    }
+
+    /* Image Modal */
+    .image-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+    }
+
+    .modal-backdrop {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(5px);
+    }
+
+    .modal-content {
+        background: white;
+        border-radius: 16px;
+        max-width: 90vw;
+        max-height: 90vh;
+        overflow: hidden;
+        position: relative;
+        z-index: 1001;
+    }
+
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.5rem;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .modal-close {
+        width: 40px;
+        height: 40px;
+        border: none;
+        background: #f3f4f6;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal-body {
+        padding: 1.5rem;
+    }
+
+    .modal-body img {
+        max-width: 100%;
+        max-height: 70vh;
+        object-fit: contain;
+    }
+
+    /* Custom CSS Variables */
+    :root {
+        --primary-color: #2563eb;
+        --primary-light: #3b82f6;
+        --accent-color: #f59e0b;
+        --text-primary: #1f2937;
+        --text-secondary: #6b7280;
+        --gray-50: #f9fafb;
+        --gray-100: #f3f4f6;
+        --gray-200: #e5e7eb;
+        --danger-color: #ef4444;
+        --success-color: #10b981;
+        --danger-light: rgba(239, 68, 68, 0.1);
+    }
+
+    .file-upload-area {
+    margin-top: 1rem;
+}
+
+.upload-zone {
+    border: 3px dashed #d1d5db;
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: #f9fafb;
+}
+
+.upload-zone:hover {
+    border-color: var(--primary-color);
+    background: rgba(37, 99, 235, 0.05);
+}
+
+.upload-zone i {
+    font-size: 3rem;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+}
+
+.upload-zone h4 {
+    margin: 0 0 0.5rem 0;
+    color: var(--text-primary);
+}
+
+.upload-zone p {
+    margin: 0 0 0.5rem 0;
+    color: var(--text-secondary);
+}
+
+.file-types {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.file-preview {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    margin-top: 1rem;
+}
+
+.file-preview img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.file-info {
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.remove-file {
+    background: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.optional {
+    color: #6b7280;
+    font-weight: normal;
+    font-size: 0.875rem;
+}
+    </style>
+
+    {% block scripts %}
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const imageUrlInput = document.getElementById('image_url');
+        const titleInput = document.getElementById('title');
+        const descriptionInput = document.getElementById('description');
+        const categorySelect = document.getElementById('category');
+        const imagePreview = document.getElementById('imagePreview');
+        const projectPreview = document.getElementById('projectPreview');
+        const previewTitle = document.getElementById('previewTitle');
+        const previewDescription = document.getElementById('previewDescription');
+        const testUrlBtn = document.getElementById('testUrl');
+        const nextBtn = document.getElementById('nextStep');
+        const prevBtn = document.getElementById('prevStep');
+        const submitBtn = document.getElementById('submitBtn');
+        const stepInfo = document.getElementById('stepInfo');
+        const urlStatus = document.getElementById('urlStatus');
+        const titleCount = document.getElementById('titleCount');
+        const descCount = document.getElementById('descCount');
+        
+        let currentStep = 1;
+        const totalSteps = 3;
+
+        // Initialize character counters
+        updateCharacterCount(titleInput, titleCount, 100);
+        updateCharacterCount(descriptionInput, descCount, 1000);
+
+        // Step navigation
+        function showStep(step) {
+            document.querySelectorAll('.form-step').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.progress-step').forEach(s => {
+                s.classList.remove('active', 'completed');
+                if (parseInt(s.dataset.step) < step) {
+                    s.classList.add('completed');
+                } else if (parseInt(s.dataset.step) === step) {
+                    s.classList.add('active');
+                }
+            });
+            
+            document.querySelector(`.form-step[data-step="${step}"]`).classList.add('active');
+            
+            prevBtn.style.display = step === 1 ? 'none' : 'inline-flex';
+            nextBtn.style.display = step === totalSteps ? 'none' : 'inline-flex';
+            submitBtn.style.display = step === totalSteps ? 'inline-flex' : 'none';
+            
+            stepInfo.textContent = `Step ${step} of ${totalSteps}`;
+            
+            if (step === 3) {
+                updateReviewContent();
+            }
+        }
+
+        nextBtn.addEventListener('click', function() {
+            if (validateCurrentStep()) {
+                currentStep++;
+                showStep(currentStep);
+            }
+        });
+
+        prevBtn.addEventListener('click', function() {
+            currentStep--;
+            showStep(currentStep);
+        });
+
+        function validateCurrentStep() {
+            if (currentStep === 1) {
+                return titleInput.value.trim() && descriptionInput.value.trim();
+            } else if (currentStep === 2) {
+                return imageUrlInput.value.trim() && isValidUrl(imageUrlInput.value);
+            }
+            return true;
+        }
+
+        function isValidUrl(string) {
+            try {
+                new URL(string);
+                return true;
+            } catch (_) {
+                return false;
+            }
+        }
+
+        // Character counting
+        function updateCharacterCount(input, counter, max) {
+            const count = input.value.length;
+            counter.textContent = count;
+            counter.parentElement.style.color = count > max * 0.9 ? 'var(--danger-color)' : 'var(--text-secondary)';
+        }
+
+        // Event listeners
+        titleInput.addEventListener('input', function() {
+            updateCharacterCount(this, titleCount, 100);
+            updatePreview();
+        });
+
+        descriptionInput.addEventListener('input', function() {
+            updateCharacterCount(this, descCount, 1000);
+            updatePreview();
+        });
+
+        categorySelect.addEventListener('change', updatePreview);
+
+        // Live preview updates
+        function updatePreview() {
+            const title = titleInput.value || 'Project Title';
+            const description = descriptionInput.value || 'Project description will appear here...';
+            const category = categorySelect.value;
+            
+            previewTitle.textContent = title;
+            previewDescription.textContent = description.substring(0, 100) + (description.length > 100 ? '...' : '');
+            
+            // Update category in preview
+            const existingCategory = projectPreview.querySelector('.preview-category');
+            if (category) {
+                if (existingCategory) {
+                    existingCategory.innerHTML = `<i class="fas fa-tag"></i> ${category.charAt(0).toUpperCase() + category.slice(1)}`;
+                } else {
+                    const categorySpan = document.createElement('span');
+                    categorySpan.className = 'preview-category';
+                    categorySpan.innerHTML = `<i class="fas fa-tag"></i> ${category.charAt(0).toUpperCase() + category.slice(1)}`;
+                    projectPreview.querySelector('.preview-meta').appendChild(categorySpan);
+                }
+            } else if (existingCategory) {
+                existingCategory.remove();
+            }
+        }
+
+        // Image preview functionality
+        function updateImagePreview() {
+            const url = imageUrlInput.value.trim();
+            
+            if (url && isValidUrl(url)) {
+                const img = new Image();
+                img.onload = function() {
+                    imagePreview.innerHTML = `
+                        <img src="${url}" alt="Project Preview" class="preview-img">
+                        <div class="image-overlay">
+                            <div class="image-actions">
+                                <button type="button" class="action-btn" onclick="openImageModal()">
+                                    <i class="fas fa-expand"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Update card preview
+                    const cardImage = projectPreview.querySelector('.preview-card-image');
+                    cardImage.innerHTML = `<img src="${url}" alt="Preview">`;
+                    
+                    showUrlStatus('Image loaded successfully!', 'success');
+                };
+                
+                img.onerror = function() {
+                    showImageError();
+                    showUrlStatus('Invalid image URL or image failed to load', 'error');
+                };
+                
+                img.src = url;
+            } else if (url) {
+                showUrlStatus('Please enter a valid URL', 'error');
+            } else {
+                showNoPreview();
+                hideUrlStatus();
+            }
+        }
+
+        function showImageError() {
+            imagePreview.innerHTML = `
+                <div class="no-preview">
+                    <i class="fas fa-exclamation-circle" style="color: var(--danger-color);"></i>
+                    <p>Invalid image URL</p>
+                    <span>Please check the URL and try again</span>
+                </div>
+            `;
+            
+            // Reset card preview
+            const cardImage = projectPreview.querySelector('.preview-card-image');
+            cardImage.innerHTML = `
+                <div class="preview-placeholder">
+                    <i class="fas fa-image"></i>
+                </div>
+            `;
+        }
+
+        function showNoPreview() {
+            imagePreview.innerHTML = `
+                <div class="no-preview">
+                    <i class="fas fa-image"></i>
+                    <p>Image preview will appear here</p>
+                    <span>Enter an image URL to see the preview</span>
+                </div>
+            `;
+            
+            // Reset card preview
+            const cardImage = projectPreview.querySelector('.preview-card-image');
+            cardImage.innerHTML = `
+                <div class="preview-placeholder">
+                    <i class="fas fa-image"></i>
+                </div>
+            `;
+        }
+
+        function showUrlStatus(message, type) {
+            urlStatus.textContent = message;
+            urlStatus.className = `url-status ${type}`;
+        }
+
+        function hideUrlStatus() {
+            urlStatus.style.display = 'none';
+        }
+
+        imageUrlInput.addEventListener('input', updateImagePreview);
+
+        testUrlBtn.addEventListener('click', function() {
+            const url = imageUrlInput.value.trim();
+            if (url) {
+                window.open(url, '_blank');
+            }
+        });
+
+        // Review content update
+        function updateReviewContent() {
+            const title = titleInput.value || 'No title provided';
+            const description = descriptionInput.value || 'No description provided';
+            const category = categorySelect.value || 'Uncategorized';
+            const imageUrl = imageUrlInput.value || 'No image provided';
+            
+            document.getElementById('reviewContent').innerHTML = `
+                <div class="review-item">
+                    <h5>Project Title</h5>
+                    <p>${title}</p>
+                </div>
+                <div class="review-item">
+                    <h5>Category</h5>
+                    <p>${category.charAt(0).toUpperCase() + category.slice(1)}</p>
+                </div>
+                <div class="review-item">
+                    <h5>Description</h5>
+                    <p>${description.substring(0, 200)}${description.length > 200 ? '...' : ''}</p>
+                </div>
+                <div class="review-item">
+                    <h5>Image URL</h5>
+                    <p style="word-break: break-all; font-size: 0.9rem;">${imageUrl}</p>
+                </div>
+            `;
+        }
+
+        // File upload functionality
+        const fileInput = document.getElementById('imageFile');
+        const uploadArea = document.getElementById('uploadArea');
+
+        uploadArea.addEventListener('click', () => fileInput.click());
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = 'var(--primary-color)';
+            uploadArea.style.background = 'var(--primary-light-bg)';
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.style.borderColor = '#d1d5db';
+            uploadArea.style.background = 'transparent';
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#d1d5db';
+            uploadArea.style.background = 'transparent';
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                document.getElementById('image_file').files = files;
+                document.getElementById('image_file').dispatchEvent(new Event('change'));
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFileUpload(e.target.files[0]);
+            }
+        });
+
+        function handleFileUpload(file) {
+            if (!file.type.startsWith('image/')) {
+                alert('Please select an image file');
+                return;
+            }
+
+            // Here you would typically upload to a service like Cloudinary, AWS S3, etc.
+            // For now, we'll just show a preview using FileReader
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                imageUrlInput.value = e.target.result;
+                updateImagePreview();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Initialize first step
+        showStep(1);
+        
+        // Initialize preview if editing existing project
+        if (titleInput.value || descriptionInput.value) {
+            updatePreview();
+        }
+        
+        if (imageUrlInput.value) {
+            updateImagePreview();
+        }
+    });
+
+    // Modal functions
+    function openImageModal() {
+        const modal = document.getElementById('imageModal');
+        const modalImage = document.getElementById('modalImage');
+        const currentImage = document.querySelector('#imagePreview .preview-img');
+        
+        if (currentImage) {
+            modalImage.src = currentImage.src;
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+    }
+
+    function closeImageModal() {
+        const modal = document.getElementById('imageModal');
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+
+    // Additional CSS for review items
+    const additionalStyles = `
+    .review-item {
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--gray-200);
+    }
+
+    .review-item:last-child {
+        border-bottom: none;
+    }
+
+    .review-item h5 {
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+    }
+
+    .review-item p {
+        color: var(--text-secondary);
+        line-height: 1.6;
+        margin: 0;
+    }
+    `;
+
+    const styleSheet = document.createElement('style');
+    styleSheet.textContent = additionalStyles;
+    document.head.appendChild(styleSheet);
+
+    // File upload functionality
+    document.getElementById('image_file').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        // Validate file size (10MB max)
+        if (file.size > 10 * 1024 * 1024) {
+            alert('File size must be less than 10MB');
+            this.value = '';
+            return;
+        }
+        
+        // Show preview
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('previewImg').src = e.target.result;
+            document.getElementById('fileName').textContent = file.name;
+            document.getElementById('filePreview').style.display = 'flex';
+            
+            // Clear URL input when file is selected
+            document.getElementById('image_url').value = '';
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
+function removeFile() {
+    document.getElementById('image_file').value = '';
+    document.getElementById('filePreview').style.display = 'none';
+}
+
+// Drag and drop functionality
+const uploadZone = document.querySelector('.upload-zone');
+uploadZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadZone.style.borderColor = 'var(--primary-color)';
+});
+
+uploadZone.addEventListener('dragleave', () => {
+    uploadZone.style.borderColor = '#d1d5db';
+});
+
+uploadZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadZone.style.borderColor = '#d1d5db';
+    
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+        document.getElementById('image_file').files = files;
+        document.getElementById('image_file').dispatchEvent(new Event('change'));
+    }
+});
+</script>
+    {% endblock %}
+    {% endblock %}
+</body>
+</html>

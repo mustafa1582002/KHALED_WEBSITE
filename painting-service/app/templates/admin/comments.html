@@ -1,0 +1,512 @@
+{% extends "base.html" %}
+
+{% block title %}Comments Management - Color&Craft Admin{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <div class="admin-header">
+        <div class="admin-header-content">
+            <div class="admin-title">
+                <h1><i class="fas fa-comments"></i> Comments Management</h1>
+                <p>Moderate and manage customer feedback</p>
+            </div>
+            <div class="admin-actions">
+                <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+                <a href="{{ url_for('admin.logout') }}" class="btn btn-danger">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Comment Statistics -->
+    <div class="comment-stats">
+        <div class="stat-item">
+            <span class="stat-number">{{ comments|length }}</span>
+            <span class="stat-label">Total Comments</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-number">{{ comments|selectattr('is_approved', 'equalto', false)|list|length }}</span>
+            <span class="stat-label">Pending Approval</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-number">{{ comments|selectattr('is_approved', 'equalto', true)|list|length }}</span>
+            <span class="stat-label">Approved</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-number">{{ comments|groupby('client_type')|list|length }}</span>
+            <span class="stat-label">Client Types</span>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filter-section">
+        <div class="filter-tabs">
+            <button class="filter-tab active" data-filter="all">
+                <i class="fas fa-list"></i> All Comments
+            </button>
+            <button class="filter-tab" data-filter="pending">
+                <i class="fas fa-clock"></i> Pending Approval
+            </button>
+            <button class="filter-tab" data-filter="approved">
+                <i class="fas fa-check-circle"></i> Approved
+            </button>
+        </div>
+        
+        <div class="bulk-actions">
+            <button type="button" class="btn btn-primary" id="bulkApprove" style="display: none;">
+                <i class="fas fa-check"></i> Approve Selected
+            </button>
+            <button type="button" class="btn btn-danger" id="bulkDelete" style="display: none;">
+                <i class="fas fa-trash"></i> Delete Selected
+            </button>
+        </div>
+    </div>
+
+    <!-- Comments List -->
+    <div class="comments-section">
+        {% if comments %}
+            <div class="comments-list">
+                {% for comment in comments %}
+                <div class="comment-card" data-status="{{ 'approved' if comment.is_approved else 'pending' }}">
+                    <div class="comment-header">
+                        <div class="comment-selector">
+                            <input type="checkbox" class="comment-checkbox" data-id="{{ comment.id }}">
+                        </div>
+                        
+                        <div class="commenter-info">
+                            <div class="commenter-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="commenter-details">
+                                <h3>{{ comment.name }}</h3>
+                                <p>{{ comment.email }}</p>
+                                {% if comment.client_type %}
+                                <span class="client-badge">{{ comment.client_type }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="comment-meta">
+                            <span class="comment-date">
+                                <i class="far fa-calendar"></i>
+                                {{ comment.created_at.strftime('%b %d, %Y') }}
+                            </span>
+                            <span class="status-badge status-{{ 'approved' if comment.is_approved else 'pending' }}">
+                                {{ 'Approved' if comment.is_approved else 'Pending' }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="comment-content">
+                        <div class="comment-text">
+                            {{ comment.content }}
+                        </div>
+                    </div>
+
+                    <div class="comment-actions">
+                        {% if not comment.is_approved %}
+                        <form method="POST" action="{{ url_for('admin.approve_comment', comment_id=comment.id) }}" class="inline-form">
+                            <button type="submit" class="action-btn success">
+                                <i class="fas fa-check"></i> Approve
+                            </button>
+                        </form>
+                        {% else %}
+                        <span class="approved-badge">
+                            <i class="fas fa-check-circle"></i> Approved
+                        </span>
+                        {% endif %}
+                        
+                        <a href="mailto:{{ comment.email }}" class="action-btn secondary">
+                            <i class="fas fa-reply"></i> Reply
+                        </a>
+                        
+                        <form method="POST" action="{{ url_for('admin.delete_comment', comment_id=comment.id) }}" 
+                              class="inline-form" onsubmit="return confirm('Delete this comment?');">
+                            <button type="submit" class="action-btn danger">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <i class="fas fa-comment-dots"></i>
+                <h3>No Comments Yet</h3>
+                <p>Customer comments and feedback will appear here when they're submitted</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.comment-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-item {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    border: 1px solid var(--gray-200);
+}
+
+.stat-number {
+    display: block;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    color: var(--light-text);
+    font-weight: 500;
+}
+
+.filter-section {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 2rem;
+}
+
+.filter-tabs {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.filter-tab {
+    padding: 0.75rem 1.5rem;
+    border: 2px solid var(--gray-200);
+    background: white;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.filter-tab:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.filter-tab.active {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+}
+
+.bulk-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.comments-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.comment-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    border: 1px solid var(--gray-200);
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.comment-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+}
+
+.comment-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--gray-100);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.comment-selector {
+    display: flex;
+    align-items: center;
+}
+
+.comment-checkbox {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.commenter-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex: 1;
+}
+
+.commenter-avatar {
+    width: 45px;
+    height: 45px;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.1rem;
+}
+
+.commenter-details h3 {
+    font-size: 1.1rem;
+    color: var(--dark-text);
+    margin-bottom: 0.25rem;
+}
+
+.commenter-details p {
+    color: var(--light-text);
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+.client-badge {
+    display: inline-block;
+    background: var(--primary-light);
+    color: white;
+    font-size: 0.75rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 12px;
+    font-weight: 600;
+    margin-top: 0.25rem;
+}
+
+.comment-meta {
+    text-align: right;
+}
+
+.comment-date {
+    display: block;
+    color: var(--light-text);
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-pending { background: #fef3c7; color: #92400e; }
+.status-approved { background: #d1fae5; color: #065f46; }
+
+.comment-content {
+    padding: 1.5rem;
+}
+
+.comment-text {
+    line-height: 1.7;
+    color: var(--dark-text);
+    background: var(--gray-50);
+    padding: 1rem;
+    border-radius: 8px;
+    border-left: 4px solid var(--primary-color);
+}
+
+.comment-actions {
+    padding: 1rem 1.5rem;
+    background: var(--gray-50);
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.action-btn {
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.action-btn.success {
+    background: var(--success-color);
+    color: white;
+}
+
+.action-btn.success:hover {
+    background: #16a34a;
+}
+
+.action-btn.secondary {
+    background: var(--gray-600);
+    color: white;
+}
+
+.action-btn.secondary:hover {
+    background: var(--gray-700);
+}
+
+.action-btn.danger {
+    background: var(--danger-color);
+    color: white;
+}
+
+.action-btn.danger:hover {
+    background: #dc2626;
+}
+
+.approved-badge {
+    color: var(--success-color);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.inline-form {
+    display: inline;
+}
+
+@media (max-width: 768px) {
+    .filter-section {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .comment-header {
+        flex-wrap: wrap;
+    }
+    
+    .comment-meta {
+        text-align: left;
+        width: 100%;
+    }
+    
+    .comment-actions {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+}
+</style>
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const filterTabs = document.querySelectorAll('.filter-tab');
+    const commentCards = document.querySelectorAll('.comment-card');
+    const checkboxes = document.querySelectorAll('.comment-checkbox');
+    const bulkApprove = document.getElementById('bulkApprove');
+    const bulkDelete = document.getElementById('bulkDelete');
+
+    // Filter functionality
+    filterTabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            filterTabs.forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+            
+            const filter = this.getAttribute('data-filter');
+            filterComments(filter);
+        });
+    });
+
+    function filterComments(statusFilter) {
+        commentCards.forEach(card => {
+            const status = card.getAttribute('data-status');
+            const match = statusFilter === 'all' || status === statusFilter;
+            card.style.display = match ? 'block' : 'none';
+        });
+    }
+
+    // Bulk actions
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateBulkActions);
+    });
+
+    function updateBulkActions() {
+        const checkedBoxes = document.querySelectorAll('.comment-checkbox:checked');
+        const hasChecked = checkedBoxes.length > 0;
+        
+        bulkApprove.style.display = hasChecked ? 'inline-block' : 'none';
+        bulkDelete.style.display = hasChecked ? 'inline-block' : 'none';
+    }
+
+    // Handle bulk approve
+    bulkApprove.addEventListener('click', function() {
+        const checkedBoxes = document.querySelectorAll('.comment-checkbox:checked');
+        const commentIds = Array.from(checkedBoxes).map(cb => cb.getAttribute('data-id'));
+        
+        if (commentIds.length === 0) {
+            alert('Please select comments to approve');
+            return;
+        }
+
+        if (confirm(`Approve ${commentIds.length} selected comments?`)) {
+            submitBulkAction('{{ url_for("admin.bulk_approve_comments") }}', commentIds);
+        }
+    });
+
+    // Handle bulk delete
+    bulkDelete.addEventListener('click', function() {
+        const checkedBoxes = document.querySelectorAll('.comment-checkbox:checked');
+        const commentIds = Array.from(checkedBoxes).map(cb => cb.getAttribute('data-id'));
+        
+        if (commentIds.length === 0) {
+            alert('Please select comments to delete');
+            return;
+        }
+
+        if (confirm(`Delete ${commentIds.length} selected comments? This action cannot be undone.`)) {
+            submitBulkAction('{{ url_for("admin.bulk_delete_comments") }}', commentIds);
+        }
+    });
+
+    function submitBulkAction(url, commentIds) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = url;
+        
+        commentIds.forEach(id => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'comment_ids';
+            input.value = id;
+            form.appendChild(input);
+        });
+        
+        document.body.appendChild(form);
+        form.submit();
+    }
+});
+</script>
+{% endblock %}
+{% endblock %}

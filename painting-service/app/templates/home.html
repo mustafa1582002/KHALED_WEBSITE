@@ -1,0 +1,1418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <title>Color&Craft</title>
+    <style>
+/* Enhanced Hero Section with Photo Gallery */
+.hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    color: white;
+    text-align: center;
+}
+
+/* Hero Gallery Background */
+.hero-gallery {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+.gallery-slides {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.gallery-slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0;
+    transition: opacity 1.5s ease-in-out, transform 20s ease-out;
+    transform: scale(1);
+}
+
+.gallery-slide.active {
+    opacity: 1;
+    transform: scale(1.05);
+}
+
+.slide-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        135deg, 
+        rgba(37, 99, 235, 0.4) 0%, 
+        rgba(59, 130, 246, 0.3) 50%, 
+        rgba(29, 78, 216, 0.5) 100%
+    );
+}
+
+/* Gallery Controls */
+.gallery-controls {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    transform: translateY(-50%);
+    display: flex;
+    justify-content: space-between;
+    padding: 0 2rem;
+    z-index: 3;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.hero-gallery:hover .gallery-controls {
+    opacity: 1;
+}
+
+.gallery-btn {
+    width: 60px;
+    height: 60px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.gallery-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+}
+
+/* Gallery Indicators */
+.gallery-indicators {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 15px;
+    z-index: 3;
+}
+
+.indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.4);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid rgba(255, 255, 255, 0.6);
+}
+
+.indicator.active {
+    background: white;
+    transform: scale(1.2);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+}
+
+.indicator:hover {
+    background: rgba(255, 255, 255, 0.8);
+    transform: scale(1.1);
+}
+
+/* Auto-play Progress Bar */
+.auto-play-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.2);
+    z-index: 3;
+}
+
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent-color), #fbbf24);
+    width: 0%;
+    transition: width 0.1s linear;
+    box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+}
+
+/* Hero Content (enhanced) */
+.hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+    animation: heroContentFadeIn 1.5s ease-out;
+}
+
+@keyframes heroContentFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.hero-title {
+    font-size: 4rem;
+    font-weight: 800;
+    margin-bottom: 1.5rem;
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    line-height: 1.1;
+}
+
+.hero-subtitle {
+    font-size: 1.4rem;
+    margin-bottom: 2.5rem;
+    color: rgba(255, 255, 255, 0.95);
+    font-weight: 400;
+    line-height: 1.6;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.highlight-text {
+    color: var(--accent-color);
+    font-weight: 600;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.hero-buttons {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.cta-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1.25rem 2.5rem;
+    background: linear-gradient(135deg, var(--accent-color), #fbbf24);
+    color: white;
+    text-decoration: none;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    transition: all 0.4s ease;
+    box-shadow: 0 8px 30px rgba(245, 158, 11, 0.3);
+    border: 2px solid transparent;
+}
+
+.cta-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 40px rgba(245, 158, 11, 0.4);
+    background: linear-gradient(135deg, #f59e0b, #f97316);
+}
+
+.cta-button-secondary {
+    background: transparent;
+    border-color: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(10px);
+}
+
+.cta-button-secondary:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: white;
+}
+
+/* Enhanced Select Dropdown Styling */
+.form-group select {
+    width: 100%;
+    padding: 1rem 3rem 1rem 1rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    font-size: 1rem;
+    background: #fafafa;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 1.2rem;
+}
+
+.form-group select:hover {
+    border-color: var(--primary-color);
+    background-color: white;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.1);
+}
+
+.form-group select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    background-color: white;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* Enhanced Option Styling */
+.form-group select option {
+    padding: 1rem;
+    font-size: 1rem;
+    color: #1f2937;
+    background: white;
+    border: none;
+}
+
+.form-group select option:hover {
+    background: #f3f4f6;
+}
+
+.form-group select option:checked {
+    background: var(--primary-color);
+    color: white;
+}
+
+.form-group select option[value=""] {
+    color: #9ca3af;
+    font-style: italic;
+}
+
+/* Improved Label Styling */
+.form-group label {
+    display: block;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    font-size: 1rem;
+    position: relative;
+}
+
+.form-group label i {
+    margin-right: 0.5rem;
+    color: var(--accent-color);
+}
+
+/* Enhanced Form Group */
+.form-group {
+    margin-bottom: 2rem;
+    position: relative;
+}
+
+.form-group.modern-select {
+    position: relative;
+}
+
+.form-group.modern-select select {
+    background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+    border: 2px solid #e2e8f0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.form-group.modern-select select:hover {
+    border-color: var(--primary-color);
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+}
+
+.form-group.modern-select select:focus {
+    background: white;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1), 0 4px 12px rgba(37, 99, 235, 0.15);
+    transform: translateY(-2px);
+}
+
+/* Form Hint */
+.form-hint {
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    color: #6b7280;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.form-hint i {
+    color: var(--primary-color);
+    font-size: 0.8rem;
+}
+
+/* Success State */
+.form-group.success select {
+    border-color: #10b981;
+    background-color: rgba(16, 185, 129, 0.05);
+}
+
+.form-group.success select:focus {
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .form-group select {
+        padding: 0.875rem 2.5rem 0.875rem 0.875rem;
+        font-size: 1rem;
+        background-size: 1rem;
+        background-position: right 0.875rem center;
+    }
+}
+
+@media (max-width: 480px) {
+    .form-group select {
+        padding: 0.75rem 2.25rem 0.75rem 0.75rem;
+        font-size: 0.95rem;
+    }
+    
+    .form-hint {
+        font-size: 0.8rem;
+    }
+}
+
+/* Remove problematic custom wrapper styles */
+.custom-select-wrapper {
+    display: none;
+}
+
+/* Hero Section Styles */
+.hero {
+    position: relative;
+    overflow: hidden;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.hero-gallery {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.gallery-slides {
+    display: flex;
+    transition: transform 0.8s ease-in-out;
+}
+
+.gallery-slide {
+    min-width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+}
+
+.slide-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.gallery-controls {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    gap: 1rem;
+}
+
+.gallery-btn {
+    background: rgba(255, 255, 255, 0.8);
+    color: #333;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.gallery-btn:hover {
+    background: rgba(255, 255, 255, 1);
+}
+
+.gallery-indicators {
+    position: absolute;
+    bottom: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 0.5rem;
+}
+
+.indicator {
+    width: 10px;
+    height: 10px;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.indicator.active {
+    background: rgba(255, 255, 255, 1);
+}
+
+.auto-play-progress {
+    position: absolute;
+    bottom: 0.5rem;
+    left: 0.5rem;
+    right: 0.5rem;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    background: var(--primary-color);
+    animation: progressAnimation 10s linear infinite;
+}
+
+@keyframes progressAnimation {
+    0% { width: 0%; }
+    100% { width: 100%; }
+}
+
+/* End of Hero Section Styles */
+
+/* General Styles */
+body {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+    background: #f4f4f9;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    margin: 0;
+    padding: 0;
+    color: #333;
+}
+
+p {
+    margin: 0;
+    padding: 0;
+    color: #666;
+}
+
+a {
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+a:hover {
+    color: var(--accent-color);
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+}
+
+.section-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.section-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.section-subtitle {
+    font-size: 1.125rem;
+    color: #777;
+}
+
+/* Featured Projects Section - Enhanced Grid Layout */
+.featured-projects {
+    padding: 6rem 0;
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+}
+
+.featured-projects .section-header {
+    text-align: center;
+    margin-bottom: 4rem;
+}
+
+.featured-projects .section-title {
+    font-size: 2.8rem;
+    font-weight: 800;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+    position: relative;
+}
+
+.featured-projects .section-title::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 4px;
+    background: linear-gradient(90deg, var(--accent-color), #fbbf24);
+    border-radius: 2px;
+}
+
+.featured-projects .section-subtitle {
+    font-size: 1.2rem;
+    color: #64748b;
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+/* Project Grid - Fixed Layout */
+.project-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 2.5rem;
+    margin-top: 3rem;
+    padding: 0 1rem;
+}
+
+/* Project Card - Enhanced Design */
+.project-card {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    position: relative;
+}
+
+.project-card:hover {
+    transform: translateY(-12px);
+    box-shadow: 0 20px 60px rgba(37, 99, 235, 0.15);
+}
+
+/* Project Image */
+.project-image {
+    position: relative;
+    height: 280px;
+    overflow: hidden;
+    background: #f1f5f9;
+}
+
+.project-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s ease;
+}
+
+.project-card:hover .project-image img {
+    transform: scale(1.1);
+}
+
+/* Image Overlay */
+.project-image::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        to bottom,
+        transparent 0%,
+        rgba(0, 0, 0, 0.1) 50%,
+        rgba(0, 0, 0, 0.3) 100%
+    );
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.project-card:hover .project-image::after {
+    opacity: 1;
+}
+
+/* Project Content */
+.project-content {
+    padding: 2rem;
+    position: relative;
+}
+
+.project-content h3 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+    line-height: 1.3;
+    transition: color 0.3s ease;
+}
+
+.project-card:hover .project-content h3 {
+    color: var(--accent-color);
+}
+
+.project-content p {
+    font-size: 1rem;
+    color: #64748b;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+}
+
+/* Project Meta */
+.project-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid #f1f5f9;
+    padding-top: 1rem;
+}
+
+.project-date {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: #94a3b8;
+    font-weight: 500;
+}
+
+.project-date i {
+    color: var(--accent-color);
+}
+
+.project-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+    color: white;
+    text-decoration: none;
+    border-radius: 25px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2);
+}
+
+.project-link:hover {
+    background: linear-gradient(135deg, var(--accent-color), #f97316);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(245, 158, 11, 0.3);
+    color: white;
+}
+
+/* View All Projects CTA */
+.projects-cta-section {
+    margin-top: 4rem;
+    text-align: center;
+    padding: 3rem 2rem;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.projects-cta-content h3 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+}
+
+.projects-cta-content p {
+    font-size: 1.1rem;
+    color: #64748b;
+    margin-bottom: 2rem;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.6;
+}
+
+.btn-view-all {
+    display: inline-flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.25rem 2.5rem;
+    background: linear-gradient(135deg, var(--accent-color), #fbbf24);
+    color: white;
+    text-decoration: none;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    transition: all 0.4s ease;
+    box-shadow: 0 8px 30px rgba(245, 158, 11, 0.3);
+    border: 2px solid transparent;
+}
+
+.btn-view-all:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 40px rgba(245, 158, 11, 0.4);
+    background: linear-gradient(135deg, #f59e0b, #f97316);
+    color: white;
+}
+
+.btn-view-all i {
+    transition: transform 0.3s ease;
+}
+
+.btn-view-all:hover i {
+    transform: translateX(5px);
+}
+
+/* No Projects CTA */
+.no-projects-cta {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.no-projects-content i {
+    font-size: 4rem;
+    color: var(--accent-color);
+    margin-bottom: 2rem;
+    opacity: 0.7;
+}
+
+.no-projects-content h3 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+}
+
+.no-projects-content p {
+    font-size: 1.1rem;
+    color: #64748b;
+    margin-bottom: 2rem;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.6;
+}
+
+/* Services Grid - Also fix this while we're at it */
+.services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    margin-top: 3rem;
+}
+
+.service-card {
+    background: white;
+    border-radius: 16px;
+    padding: 2.5rem 2rem;
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    text-align: center;
+}
+
+.service-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 40px rgba(37, 99, 235, 0.12);
+}
+
+.service-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 1.5rem;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.service-card:hover .service-icon {
+    background: linear-gradient(135deg, var(--accent-color), #fbbf24);
+    transform: scale(1.1);
+}
+
+.service-card h3 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+}
+
+.service-card p {
+    font-size: 1rem;
+    color: #64748b;
+    line-height: 1.6;
+}
+
+/* Footer Styles */
+footer {
+    background: #333;
+    color: white;
+    padding: 2rem 0;
+    text-align: center;
+}
+
+footer p {
+    margin: 0;
+    font-size: 0.875rem;
+}
+
+/* Miscellaneous */
+.required {
+    color: red;
+}
+
+.success {
+    border-color: #10b981;
+}
+
+.error {
+    border-color: #ef4444;
+}
+
+/* Animation */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+</style>
+</head>
+<body>
+    {% extends "base.html" %}
+
+    {% block title %}Home - Color&Craft{% endblock %}
+
+    {% block content %}
+    <main>
+        <section class="hero">
+    <!-- Dynamic Background Gallery -->
+    <div class="hero-gallery">
+        <div class="gallery-slides">
+            <div class="gallery-slide active" data-bg="https://images.unsplash.com/photo-1589939705384-5185137a7f0f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80">
+                <div class="slide-overlay"></div>
+            </div>
+            <div class="gallery-slide" data-bg="https://images.unsplash.com/photo-1562259949-e8e7689d7828?ixlib=rb-4.0.3&auto=format
+                <div class="slide-overlay"></div>
+            </div>
+            <div class="gallery-slide" data-bg="https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80">
+                <div class="slide-overlay"></div>
+            </div>
+            <div class="gallery-slide" data-bg="https://images.unsplash.com/photo-1504615755583-2916b52192a3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80">
+                <div class="slide-overlay"></div>
+            </div>
+            <div class="gallery-slide" data-bg="https://images.unsplash.com/photo-1541123437800-1bb1317badc2?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80">
+                <div class="slide-overlay"></div>
+            </div>
+        </div>
+        
+        <!-- Gallery Controls -->
+        <div class="gallery-controls">
+            <button class="gallery-btn prev-btn" id="prevSlide">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <button class="gallery-btn next-btn" id="nextSlide">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+        
+        <!-- Gallery Indicators -->
+        <div class="gallery-indicators">
+            <span class="indicator active" data-slide="0"></span>
+            <span class="indicator" data-slide="1"></span>
+            <span class="indicator" data-slide="2"></span>
+            <span class="indicator" data-slide="3"></span>
+            <span class="indicator" data-slide="4"></span>
+        </div>
+        
+        <!-- Auto-play Progress Bar -->
+        <div class="auto-play-progress">
+            <div class="progress-bar"></div>
+        </div>
+    </div>
+
+    <!-- Hero Content (stays the same) -->
+    <div class="container">
+        <div class="hero-content">
+            <h1 class="hero-title">Transform Your Space with Professional Painting</h1>
+            <p class="hero-subtitle">Quality craftsmanship, premium materials, and <span class="highlight-text">stunning results</span> guaranteed.</p>
+            <div class="hero-buttons">
+                <a href="{{ url_for('main.projects') }}" class="cta-button">
+                    <i class="fas fa-images"></i> View Our Projects
+                </a>
+                <a href="{{ url_for('main.contact') }}" class="cta-button cta-button-secondary">
+                    <i class="fas fa-paint-brush"></i> Request a Service
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+        <section class="services">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">Our Services</h2>
+                    <p class="section-subtitle">We offer a wide range of professional painting and decorating services</p>
+                </div>
+                
+                <div class="services-grid">
+                    <div class="service-card">
+                        <div class="service-icon">
+                            <i class="fas fa-home"></i>
+                        </div>
+                        <h3>Interior Painting</h3>
+                        <p>Transform your living spaces with our expert interior painting services.</p>
+                    </div>
+                    
+                    <div class="service-card">
+                        <div class="service-icon">
+                            <i class="fas fa-building"></i>
+                        </div>
+                        <h3>Exterior Painting</h3>
+                        <p>Enhance your property's curb appeal with our durable exterior finishes.</p>
+                    </div>
+                    
+                    <div class="service-card">
+                        <div class="service-icon">
+                            <i class="fas fa-brush"></i>
+                        </div>
+                        <h3>Decorative Finishes</h3>
+                        <p>Add unique textures and artistic touches to your walls and ceilings.</p>
+                    </div>
+                    
+                    <div class="service-card">
+                        <div class="service-icon">
+                            <i class="fas fa-tools"></i>
+                        </div>
+                        <h3>Commercial Services</h3>
+                        <p>Professional painting solutions for businesses and commercial properties.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="featured-projects">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">Featured Projects</h2>
+                    <p class="section-subtitle">Explore some of our recent work and discover the quality we deliver</p>
+                </div>
+                
+                {% if projects %}
+                    <div class="project-grid">
+                        {% for project in projects[:3] %}
+                        <div class="project-card">
+                            <div class="project-image">
+                                <img src="{{ project.image_url }}" alt="{{ project.title }}" loading="lazy"
+                                     onerror="this.src='{{ url_for('static', filename='images/placeholder.jpg') }}'">
+                            </div>
+                            <div class="project-content">
+                                <h3>{{ project.title }}</h3>
+                                <p>{{ project.description[:100] }}{% if project.description|length > 100 %}...{% endif %}</p>
+                            </div>
+                            <div class="project-meta">
+                                <span class="project-date">
+                                    <i class="far fa-calendar-alt"></i> {{ project.created_at.strftime('%b %d, %Y') if project.created_at else 'Recent' }}
+                                </span>
+                                <a href="{{ url_for('main.projects') }}" class="project-link">View Details</a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <!-- Improved View All Projects Button -->
+                    <div class="projects-cta-section">
+                        <div class="projects-cta-content">
+                            <h3>Explore Our Complete Portfolio</h3>
+                            <p>Discover more inspiring transformations and see why our clients choose us for their painting projects</p>
+                            <a href="{{ url_for('main.projects') }}" class="btn-view-all">
+                                <span>View All Projects</span>
+                                <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="no-projects-cta">
+                        <div class="no-projects-content">
+                            <i class="fas fa-paint-brush"></i>
+                            <h3>Projects Coming Soon</h3>
+                            <p>We're preparing our portfolio to showcase amazing transformations. Check back soon!</p>
+                            <a href="{{ url_for('main.contact') }}" class="btn btn-primary">
+                                <i class="fas fa-phone"></i> Get Your Quote
+                            </a>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </section>
+
+        <section class="testimonials">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">Client Testimonials</h2>
+                    <p class="section-subtitle">Hear what our satisfied customers have to say about our services</p>
+                </div>
+                
+                <div class="testimonials-slider">
+                    <div class="testimonial">
+                        <div class="testimonial-content">
+                            <p>"Their attention to detail and professionalism was outstanding. Our home looks absolutely beautiful!"</p>
+                        </div>
+                        <div class="testimonial-author">
+                            <div class="testimonial-avatar">
+                                <i class="fas fa-user-circle"></i>
+                            </div>
+                            <div class="testimonial-info">
+                                <h4>John Smith</h4>
+                                <p>Residential Client</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="testimonial">
+                        <div class="testimonial-content">
+                            <p>"The team completed our office renovation on time and on budget. The results exceeded our expectations!"</p>
+                        </div>
+                        <div class="testimonial-author">
+                            <div class="testimonial-avatar">
+                                <i class="fas fa-user-circle"></i>
+                            </div>
+                            <div class="testimonial-info">
+                                <h4>Sarah Johnson</h4>
+                                <p>Business Owner</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="testimonial">
+                        <div class="testimonial-content">
+                            <p>"I've hired them multiple times for different projects. Their consistency and quality is why I keep coming back."</p>
+                        </div>
+                        <div class="testimonial-author">
+                            <div class="testimonial-avatar">
+                                <i class="fas fa-user-circle"></i>
+                            </div>
+                            <div class="testimonial-info">
+                                <h4>Michael Brown</h4>
+                                <p>Property Manager</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Add this section before the CTA section, after testimonials -->
+        <section class="comments-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">Community Feedback</h2>
+                    <p class="section-subtitle">Share your thoughts or read what others have to say about our services</p>
+                </div>
+                
+                <div class="comments-container">
+                    <!-- Comments Display -->
+                    <div class="comments-display">
+                        {% if comments %}
+                            <div class="comments-list">
+                                {% for comment in comments %}
+                                <div class="comment-card">
+                                    <div class="comment-header">
+                                        <div class="comment-author">
+                                            <i class="fas fa-user-circle"></i>
+                                            <span class="comment-name">{{ comment.name }}</span>
+                                        </div>
+                                        <div class="comment-date">
+                                            <i class="far fa-calendar-alt"></i>
+                                            {{ comment.created_at.strftime('%b %d, %Y') }}
+                                            {% if comment.client_type %}
+                                            <span class="client-badge">{{ comment.client_type }}</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="comment-content">
+                                        <p>{{ comment.content }}</p>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="comments-list empty-comments-list">
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Comment Form -->
+                    <div class="comment-form-container">
+                        <h3>Leave a Comment</h3>
+                        <form method="POST" action="{{ url_for('main.add_comment') }}" class="comment-form">
+                            <div class="form-group">
+                                <label for="name">Your Name <span class="required">*</span></label>
+                                <input type="text" id="name" name="name" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="email">Email Address <span class="required">*</span></label>
+                                <input type="email" id="email" name="email" required>
+                                <small class="form-text">Your email won't be published</small>
+                            </div>
+                            <div class="form-group modern-select">
+                                <label for="client_type">
+                                    <i class="fas fa-user-tag"></i> You are a:
+                                </label>
+                                <select id="client_type" name="client_type" required>
+                                    <option value="" disabled selected>Select your role...</option>
+                                    <option value="Residential Client">🏠 Residential Client</option>
+                                    <option value="Business Owner">🏢 Business Owner</option>
+                                    <option value="Property Manager">🏗️ Property Manager</option>
+                                    <option value="Interior Designer">🎨 Interior Designer</option>
+                                    <option value="Contractor">⚒️ Contractor</option>
+                                    <option value="Real Estate Agent">🏘️ Real Estate Agent</option>
+                                    <option value="Other">❓ Other</option>
+                                </select>
+                                <div class="form-hint">
+                                    <i class="fas fa-info-circle"></i> 
+                                    This helps us provide more relevant information
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="content">Your Comment <span class="required">*</span></label>
+                                <textarea id="content" name="content" rows="4" required></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-paper-plane"></i> Submit Comment
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="cta">
+    <div class="container">
+        <div class="cta-content">
+            <h2 class="cta-title">Ready to Transform Your Space?</h2>
+            <p class="cta-description">Contact us today for a free consultation and estimate.</p>
+            <a href="{{ url_for('main.contact') }}" class="cta-button">
+                <i class="fas fa-phone"></i> Get in Touch
+            </a>
+        </div>
+    </div>
+</section>
+    </main>
+    <footer>
+        <p>&copy; {{ current_year }} Painting and Decoration Services. All rights reserved.</p>
+    </footer>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Hero Gallery Functionality
+    const gallery = {
+        slides: document.querySelectorAll('.gallery-slide'),
+        indicators: document.querySelectorAll('.indicator'),
+        prevBtn: document.getElementById('prevSlide'),
+        nextBtn: document.getElementById('nextSlide'),
+        progressBar: document.querySelector('.progress-bar'),
+        currentSlide: 0,
+        totalSlides: 0,
+        autoPlayInterval: null,
+        autoPlayDuration: 6000, // 6 seconds per slide
+        
+        init() {
+            this.totalSlides = this.slides.length;
+            this.loadBackgroundImages();
+            this.bindEvents();
+            this.startAutoPlay();
+            
+            console.log(`🎨 Gallery initialized with ${this.totalSlides} slides`);
+        },
+        
+        loadBackgroundImages() {
+            // Set background images from data-bg attributes
+            this.slides.forEach(slide => {
+                const bgUrl = slide.getAttribute('data-bg');
+                if (bgUrl) {
+                    slide.style.backgroundImage = `url(${bgUrl})`;
+                }
+            });
+        },
+        
+        bindEvents() {
+            // Previous/Next buttons
+            this.prevBtn.addEventListener('click', () => {
+                this.goToSlide(this.currentSlide - 1);
+                this.resetAutoPlay();
+            });
+            
+            this.nextBtn.addEventListener('click', () => {
+                this.goToSlide(this.currentSlide + 1);
+                this.resetAutoPlay();
+            });
+            
+            // Indicator clicks
+            this.indicators.forEach((indicator, index) => {
+                indicator.addEventListener('click', () => {
+                    this.goToSlide(index);
+                    this.resetAutoPlay();
+                });
+            });
+            
+            // Pause on hover
+            const heroGallery = document.querySelector('.hero-gallery');
+            heroGallery.addEventListener('mouseenter', () => this.pauseAutoPlay());
+            heroGallery.addEventListener('mouseleave', () => this.startAutoPlay());
+            
+            // Keyboard navigation
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowLeft') {
+                    this.goToSlide(this.currentSlide - 1);
+                    this.resetAutoPlay();
+                } else if (e.key === 'ArrowRight') {
+                    this.goToSlide(this.currentSlide + 1);
+                    this.resetAutoPlay();
+                }
+            });
+        },
+        
+        goToSlide(slideIndex) {
+            // Wrap around slides
+            if (slideIndex >= this.totalSlides) {
+                slideIndex = 0;
+            } else if (slideIndex < 0) {
+                slideIndex = this.totalSlides - 1;
+            }
+            
+            // Update slides
+            this.slides[this.currentSlide].classList.remove('active');
+            this.slides[slideIndex].classList.add('active');
+            
+            // Update indicators
+            this.indicators[this.currentSlide].classList.remove('active');
+            this.indicators[slideIndex].classList.add('active');
+            
+            this.currentSlide = slideIndex;
+            
+            // Reset progress bar
+            this.progressBar.style.width = '0%';
+        },
+        
+        nextSlide() {
+            this.goToSlide(this.currentSlide + 1);
+        },
+        
+        startAutoPlay() {
+            this.autoPlayInterval = setInterval(() => {
+                this.nextSlide();
+            }, this.autoPlayDuration);
+            
+            // Animate progress bar
+            this.animateProgressBar();
+        },
+        
+        pauseAutoPlay() {
+            if (this.autoPlayInterval) {
+                clearInterval(this.autoPlayInterval);
+                this.autoPlayInterval = null;
+            }
+            this.progressBar.style.width = '0%';
+        },
+        
+        resetAutoPlay() {
+            this.pauseAutoPlay();
+            setTimeout(() => this.startAutoPlay(), 100);
+        },
+        
+        animateProgressBar() {
+            let width = 0;
+            const increment = 100 / (this.autoPlayDuration / 100);
+            
+            const progressInterval = setInterval(() => {
+                width += increment;
+                this.progressBar.style.width = width + '%';
+                
+                if (width >= 100) {
+                    clearInterval(progressInterval);
+                }
+            }, 100);
+        }
+    };
+    
+    // Initialize gallery
+    gallery.init();
+    
+    // Add smooth scroll for hero buttons
+    document.querySelectorAll('.cta-button').forEach(button => {
+        button.addEventListener('click', function(e) {
+            // Add click animation
+            this.style.transform = 'translateY(-3px) scale(0.98)';
+            setTimeout(() => {
+                this.style.transform = '';
+            }, 150);
+        });
+    });
+});
+</script>
+    {% endblock %}
+</body>
+</html>

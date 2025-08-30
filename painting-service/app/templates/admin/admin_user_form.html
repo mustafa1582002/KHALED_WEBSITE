@@ -1,0 +1,319 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'Add' if action == 'add' else 'Edit' }} Admin User - Color&Craft Admin{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <div class="admin-header">
+        <div class="admin-header-content">
+            <div class="admin-title">
+                <div class="breadcrumbs">
+                    <a href="{{ url_for('admin.dashboard') }}">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a>
+                    <span class="breadcrumb-separator">/</span>
+                    <a href="{{ url_for('admin.admin_users') }}">Admin Users</a>
+                    <span class="breadcrumb-separator">/</span>
+                    <span>{{ 'Add User' if action == 'add' else 'Edit User' }}</span>
+                </div>
+                <h1>
+                    <i class="fas fa-{{ 'user-plus' if action == 'add' else 'user-edit' }}"></i>
+                    {{ 'Add New Admin User' if action == 'add' else 'Edit Admin User' }}
+                </h1>
+                <p>{{ 'Create a new admin account' if action == 'add' else 'Update admin account details' }}</p>
+            </div>
+            <div class="admin-actions">
+                <a href="{{ url_for('admin.admin_users') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Users
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Form Section -->
+    <div class="form-section">
+        <div class="form-container">
+            <form method="POST" class="admin-form" id="adminUserForm">
+                <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="username" class="form-label">
+                            <i class="fas fa-user"></i>
+                            Username *
+                        </label>
+                        <input type="text" 
+                               id="username" 
+                               name="username" 
+                               class="form-input"
+                               value="{{ admin_user.username if admin_user else (form_data.username if form_data else '') }}"
+                               required
+                               placeholder="Enter username"
+                               pattern="[a-zA-Z0-9_]{3,20}"
+                               title="Username must be 3-20 characters, letters, numbers, and underscores only">
+                        <small class="form-help">Username must be 3-20 characters (letters, numbers, underscore)</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="full_name" class="form-label">
+                            <i class="fas fa-id-card"></i>
+                            Full Name
+                        </label>
+                        <input type="text" 
+                               id="full_name" 
+                               name="full_name" 
+                               class="form-input"
+                               value="{{ admin_user.full_name if admin_user else (form_data.full_name if form_data else '') }}"
+                               placeholder="Enter full name">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email" class="form-label">
+                            <i class="fas fa-envelope"></i>
+                            Email Address
+                        </label>
+                        <input type="email" 
+                               id="email" 
+                               name="email" 
+                               class="form-input"
+                               value="{{ admin_user.email if admin_user else (form_data.email if form_data else '') }}"
+                               placeholder="Enter email address">
+                    </div>
+
+                    {% if action == 'add' %}
+                    <div class="form-group">
+                        <label for="password" class="form-label">
+                            <i class="fas fa-lock"></i>
+                            Password *
+                        </label>
+                        <div class="password-input-wrapper">
+                            <input type="password" 
+                                   id="password" 
+                                   name="password" 
+                                   class="form-input"
+                                   required
+                                   minlength="6"
+                                   placeholder="Enter password">
+                            <button type="button" class="password-toggle" onclick="togglePassword('password')">
+                                <i class="fas fa-eye" id="password-toggle-icon"></i>
+                            </button>
+                        </div>
+                        <small class="form-help">Password must be at least 6 characters long</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="confirm_password" class="form-label">
+                            <i class="fas fa-lock"></i>
+                            Confirm Password *
+                        </label>
+                        <div class="password-input-wrapper">
+                            <input type="password" 
+                                   id="confirm_password" 
+                                   name="confirm_password" 
+                                   class="form-input"
+                                   required
+                                   minlength="6"
+                                   placeholder="Confirm password">
+                            <button type="button" class="password-toggle" onclick="togglePassword('confirm_password')">
+                                <i class="fas fa-eye" id="confirm_password-toggle-icon"></i>
+                            </button>
+                        </div>
+                        <small class="form-help">Must match the password above</small>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fas fa-save"></i>
+                        {{ 'Create Admin User' if action == 'add' else 'Update Admin User' }}
+                    </button>
+                    <a href="{{ url_for('admin.admin_users') }}" class="btn btn-secondary btn-lg">
+                        <i class="fas fa-times"></i>
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.form-section {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+}
+
+.form-container {
+    padding: 2rem;
+}
+
+.admin-form {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.form-input {
+    padding: 0.875rem 1rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: #fff;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.form-help {
+    color: #64748b;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+.password-input-wrapper {
+    position: relative;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #64748b;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0.5rem;
+    border-radius: 4px;
+    transition: color 0.3s ease;
+}
+
+.password-toggle:hover {
+    color: var(--primary-color);
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e2e8f0;
+}
+
+.btn-lg {
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.breadcrumbs {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+.breadcrumbs a {
+    color: white;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: opacity 0.3s ease;
+}
+
+.breadcrumbs a:hover {
+    opacity: 0.8;
+}
+
+.breadcrumb-separator {
+    opacity: 0.6;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .admin-header-content {
+        flex-direction: column;
+        text-align: center;
+    }
+}
+</style>
+
+<script>
+function togglePassword(fieldId) {
+    const field = document.getElementById(fieldId);
+    const icon = document.getElementById(fieldId + '-toggle-icon');
+    
+    if (field.type === 'password') {
+        field.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+    } else {
+        field.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+    }
+}
+
+// Form validation
+document.getElementById('adminUserForm').addEventListener('submit', function(e) {
+    // Only validate passwords if the password fields exist (i.e., on 'add' action)
+    const passwordField = document.getElementById('password');
+    const confirmPasswordField = document.getElementById('confirm_password');
+    if (passwordField && confirmPasswordField) {
+        const password = passwordField.value;
+        const confirmPassword = confirmPasswordField.value;
+        if (password !== confirmPassword) {
+            e.preventDefault();
+            alert('Passwords do not match!');
+            return;
+        }
+    }
+
+    const username = document.getElementById('username').value;
+    if (username.length < 3) {
+        e.preventDefault();
+        alert('Username must be at least 3 characters long!');
+        return;
+    }
+});
+</script>
+{% endblock %}

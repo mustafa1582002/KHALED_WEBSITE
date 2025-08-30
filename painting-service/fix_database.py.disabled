@@ -1,0 +1,71 @@
+import sqlite3
+import os
+from app import create_app, db
+
+def fix_database_schema():
+    """Add missing columns to the existing database"""
+    
+    # Get the database path
+    instance_dir = os.path.join(os.path.dirname(__file__), 'instance')
+    db_path = os.path.join(instance_dir, 'painting_service.db')
+    
+    if not os.path.exists(db_path):
+        print("Database file not found. Creating new database...")
+        app = create_app()
+        with app.app_context():
+            db.create_all()
+        print("New database created successfully!")
+        return
+    
+    # Connect to the database
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    
+    try:
+        # Check current table structure
+        cursor.execute("PRAGMA table_info(comments)")
+        columns = [column[1] for column in cursor.fetchall()]
+        print(f"Current comments columns: {columns}")
+        
+        # Add missing columns if they don't exist
+        if 'project_id' not in columns:
+            print("Adding 'project_id' column to comments table...")
+            cursor.execute("ALTER TABLE comments ADD COLUMN project_id INTEGER")
+            print("✅ project_id column added!")
+        
+        if 'rating' not in columns:
+            print("Adding 'rating' column to comments table...")
+            cursor.execute("ALTER TABLE comments ADD COLUMN rating INTEGER")
+            print("✅ rating column added!")
+        
+        if 'client_type' not in columns:
+            print("Adding 'client_type' column to comments table...")
+            cursor.execute("ALTER TABLE comments ADD COLUMN client_type VARCHAR(50)")
+            print("✅ client_type column added!")
+        
+        # Check projects table for category column
+        cursor.execute("PRAGMA table_info(projects)")
+        project_columns = [column[1] for column in cursor.fetchall()]
+        print(f"Current projects columns: {project_columns}")
+        
+        if 'category' not in project_columns:
+            print("Adding 'category' column to projects table...")
+            cursor.execute("ALTER TABLE projects ADD COLUMN category VARCHAR(50) DEFAULT 'general'")
+            print("✅ category column added!")
+        
+        conn.commit()
+        print("\n🎉 Database schema updated successfully!")
+        
+        # Verify the changes
+        cursor.execute("PRAGMA table_info(comments)")
+        updated_columns = [column[1] for column in cursor.fetchall()]
+        print(f"Updated comments columns: {updated_columns}")
+        
+    except Exception as e:
+        print(f"❌ Error updating database: {str(e)}")
+        conn.rollback()
+    finally:
+        conn.close()
+
+if __name__ == '__main__':
+    fix_database_schema()
